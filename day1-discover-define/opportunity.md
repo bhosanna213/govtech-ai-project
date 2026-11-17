@@ -24,7 +24,7 @@ An officer approves every reply. Synthetic data only. Some enquiries include ima
 
 ### 5. Success
 
-Pass if officers send 7 in 10 drafted replies after a light edit in a two-week pilot. Fail below 5 in 10. (made up)
+Pass if officers send 8 in 10 drafted replies after a light edit in a two-week pilot. Fail below 5 in 10. 
 
 ### 6. Explore
 
