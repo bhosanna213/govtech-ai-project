@@ -1,6 +1,6 @@
 # Opportunity: First replies to ServiceSG enquiries that need a policy lookup
 
-**Scenario:** C · MOE lower secondary biology
+**Scenario:** A · ServiceSG enquiry response
 
 All quotes and metrics are synthetic and labelled as made up.
 
