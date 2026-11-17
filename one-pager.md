@@ -4,11 +4,13 @@ Use case: Scenario A · ServiceSG enquiry response. All data in this document is
 
 ## Problem and user
 
-ServiceSG officers work a shared enquiry inbox during office hours, busiest in the week after a policy change. They search policy pages before they can reply, so first replies run well past the one-day target. The goal: residents get a correct first reply within one working day.
+ServiceSG officers work a shared enquiry inbox during office hours, busiest in the week after a policy change. They search policy pages before they can reply, so first replies run well past the one-day target. An officer approves every reply, and some enquiries include images the current tools cannot read. The goal: residents get a correct first reply within one working day.
 
 ## Opportunity and evidence
 
-Officers say the policy search takes longer than writing the reply, and enquiries with photos mean retyping what the image says (synthetic quotes in `day1-discover-define/opportunity.md`). Baseline metrics are in the same file: enquiries answered within SLA, average first-reply time, share of enquiries with an image, and minutes per policy search. An AI draft that cites the policy page it used could cut the search time out of every first reply.
+Officers say the policy search takes longer than writing the reply, and enquiries with photos mean retyping what the image says (synthetic quotes in `day1-discover-define/opportunity.md`).
+
+Status quo today (from the same file): enquiries answered within SLA 90%; average first reply 1 day; enquiries with an image 1 in 5; minutes per policy search 10. An AI draft that cites the policy page it used could cut the search time out of every first reply.
 
 ## Experience and trust
 
@@ -38,7 +40,7 @@ Not started. To be filled in Day 2 (validate) and Day 3 (build).
 
 ## Metrics plan and stop line
 
-Pilot test: two weeks, pass if officers send 7 in 10 drafted replies after a light edit, fail below 5 in 10. Trust metric: accept-as-is rate, checked weekly, target 6 in 10 by end of pilot. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
+Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a light edit, fail below 5 in 10. Success signal: 8 in 10 drafts sent after a light edit by 20 Nov. Trust metric: accept-as-is rate, checked weekly, target 6 in 10 by end of pilot. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
 
 ## Evals and gates
 
