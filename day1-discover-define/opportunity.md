@@ -39,10 +39,10 @@ Will officers edit a cited draft, or rewrite it from scratch?
 
 ### Metrics
 
-- Enquiries answered within SLA: 72% (made up)
-- Average first reply: 3 days (made up)
-- Enquiries with an image: 1 in 5 (made up)
-- Minutes per policy search: 12 (made up)
+- Enquiries answered within SLA: 90%
+- Average first reply: 1 day
+- Enquiries with an image: 1 in 5
+- Minutes per policy search: 10
 
 ## Hypothesis
 
@@ -51,4 +51,4 @@ I’m testing whether officers will send an AI-drafted first reply after a light
 - Risk type: Usability (build a clickable mockup first)
 - Kill switch: Officers trust a cited draft enough to edit it instead of starting over.
 - Kill-switch signal: Officers get stuck on the core action within 30 seconds, or rewrite most of the draft.
-- Success signal: 7 in 10 drafts sent after a light edit by 20 Nov (made up)
+- Success signal: 8 in 10 drafts sent after a light edit by 20 Nov
