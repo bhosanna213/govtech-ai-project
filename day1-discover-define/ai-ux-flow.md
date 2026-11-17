@@ -16,7 +16,7 @@ The customised draft reply, the policy passage it cites next to each line, and A
 
 ### Below the line
 
-- Data: Synthetic enquiries (made up) and the public policy pages.
+- Data: Synthetic enquiries and the public policy pages.
 - Model: A language model that drafts the reply and cites the passage it used & explaining the rationale.
 - Rules: No fees, dates or deadlines unless the cited page states them. Never send without an officer review.
 - Handoffs: Enquiries below the confidence threshold go to an officer with no draft, however provides a light guiding principles with the estimated confidence range level.
@@ -38,4 +38,4 @@ Below the confidence threshold, no draft. The enquiry goes to an officer with th
 
 ## How we measure trust (Expert)
 
-Accept-as-is rate: the share of drafts officers send without edits, checked weekly. Target: 6 in 10 by the end of the pilot (made up).
+Accept-as-is rate: the share of drafts officers send without edits, checked weekly. Target: 8 in 10 by the end of the pilot.
