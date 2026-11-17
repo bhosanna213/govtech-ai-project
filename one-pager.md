@@ -40,7 +40,7 @@ Not started. To be filled in Day 2 (validate) and Day 3 (build).
 
 ## Metrics plan and stop line
 
-Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a light edit, fail below 5 in 10. Success signal: 8 in 10 drafts sent after a light edit by 20 Nov. Trust metric: accept-as-is rate, checked weekly, target 6 in 10 by end of pilot. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
+Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a light edit, fail below 5 in 10. Success signal: 8 in 10 drafts sent after a light edit by 20 Nov. Trust metric: accept-as-is rate, checked weekly, target 8 in 10 by end of pilot. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
 
 ## Evals and gates
 
