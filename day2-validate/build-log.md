@@ -2,6 +2,46 @@
 
 What changed in the prototype, newest first. One entry per change.
 
+## Riskiest assumptions
+
+The four assumptions the prototype must test, from `validation-brief.md` and the Three leaders exercise below.
+
+### 1. Officers trust a cited draft enough to edit it
+
+- Risk type: Usability (clickable mockup first).
+- Kill switch: If officers do not trust a cited draft enough to edit it instead of starting over, faster drafting solves nothing.
+- Kill-switch signal: Stuck on the core action within 30 seconds, or more than 6 in 10 words of a draft rewritten.
+- Success signal: In a five-enquiry session, at least four drafts approved after a light edit.
+- Tested by: the measured session (clock, time to decision, share of words changed).
+
+### 2. The cited policy pages are current and correct
+
+- Risk type: Data / feasibility. The inbox is busiest right after a policy change, when pages are most likely stale.
+- Kill switch: If officers cannot catch a stale-page error from the side-by-side citation, citations create false trust exactly when it is most dangerous.
+- Kill-switch signal: The planted stale-fee error is approved and would have reached a resident.
+- Success signal: The planted error is caught using the citation, under the session clock.
+- Tested by: the planted error in the pass-renewal enquiry (draft says $5; the cited passage says renewal is free over 70).
+
+### 3. A cited draft beats canned snippets
+
+- Risk type: Value. A text-expander with canned snippets costs a tenth as much; if it is as fast and as safe, fund the snippets.
+- Kill switch: The cited draft must win on time to an approved correct reply, or on errors caught, in a like-for-like test.
+- Kill-switch signal: Snippet mode matches draft mode on speed and neither mode's planted error advantage differs.
+- Success signal: Draft mode is faster to an approved correct reply, or catches the planted error where snippet mode misses its stale snippet.
+- Tested by: the prototype's mode switch — the same enquiries answered in Draft mode and in Snippet mode (one stale snippet planted), results compared per mode.
+
+### 4. Officers read before approving under pressure
+
+- Risk type: Usability / safety. The 8-in-10 pass line can be hit by rubber-stamping.
+- Kill switch: If queue pressure turns "light edit" into "approve without reading", the measured pass rate is meaningless and unsafe.
+- Kill-switch signal: Any approval in draft mode with zero cited passages opened.
+- Success signal: Every draft-mode approval is preceded by at least one opened citation.
+- Tested by: per-enquiry citation tracking, flagged on the results screen as "approved without reading".
+
+## 18 Nov 2026 — head-to-head and reading check
+
+Added the remaining two assumption tests. A mode switch (AI draft / Snippets) runs the head of product's head-to-head: in snippet mode there is no AI, the tester composes replies from a folder of eight canned snippets (made up), one deliberately stale with the old $5 fee. The results screen now compares average time to decision per mode, reports whether each mode's planted error was caught, and flags any draft approved with zero citations opened as "approved without reading" — the rubber-stamp kill-switch signal. Listed all four riskiest assumptions with risk type, kill switch and success signal (section above).
+
 ## 18 Nov 2026 — measurement build
 
 Turned the mockup into a measuring instrument for the assumption in `validation-brief.md`. Added: a 10-minute session clock (Start test session), per-enquiry tracking of time to decision, citations opened and share of words changed, a planted stale-fee error in a new synthetic enquiry (the draft says $5; the cited passage says renewal is free over 70), and a Finish test results screen that reads the numbers against the kill-switch lines. All new data is made up. This answers the directors' challenge: the test can now tell a light edit from a rubber stamp, and passes only if the planted error is caught.

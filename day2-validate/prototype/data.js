@@ -129,3 +129,20 @@ const ENQUIRIES = [
     rationale: "The lost-item part matched the lost item claims page. The gym pass transfer question matched no policy page, so overall confidence is low and the draft is marked for careful review. (made up)"
   }
 ];
+
+// Snippet folder for the head-to-head test (all made up). In Snippet mode
+// the officer composes the reply from these canned snippets instead of an
+// AI draft. One snippet is deliberately STALE: snip-03 still states the $5
+// renewal fee, but the policy page says renewal is free for 70 and above.
+// This mirrors the planted citation error, so the two modes can be compared
+// on whether their planted error gets caught.
+const SNIPPETS = [
+  { id: "snip-01", title: "Senior pass — new application", text: "Residents aged 60 and above may apply for the Senior Activity Pass at any community centre. The pass costs $12 per year. (made up)", stale: false },
+  { id: "snip-02", title: "Senior pass — processing time", text: "Applications are processed within five working days. (made up)", stale: false },
+  { id: "snip-03", title: "Senior pass — renewal fee", text: "The renewal fee is $5 per year for all pass holders. (made up)", stale: true },
+  { id: "snip-04", title: "Hall booking — deposit refund", text: "Cancellations made at least 14 days before the booking date receive a full deposit refund of $50. (made up)", stale: false },
+  { id: "snip-05", title: "Hall booking — advance window", text: "Residents may book the community hall up to 60 days in advance. (made up)", stale: false },
+  { id: "snip-06", title: "Home repairs — what is covered", text: "The scheme covers leaking taps, faulty light switches and door hinges for registered households, up to twice per calendar year, free for households on the assistance register. (made up)", stale: false },
+  { id: "snip-07", title: "Lost items — collection", text: "Items found at public facilities are held at the facility office for 30 days. Claimants must describe the item and show identification at collection. (made up)", stale: false },
+  { id: "snip-08", title: "Greeting and sign-off", text: "Thank you for writing to ServiceSG. / We hope this answers your question. Please write back if we can help further. (made up)", stale: false }
+];

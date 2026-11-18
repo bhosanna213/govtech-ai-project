@@ -28,7 +28,7 @@ In a test session of five drafted enquiries: at least four are approved after a 
 ## What the test must prove (from the three leaders)
 
 1. **Frontline director:** officers catch a planted stale-page error using the side-by-side citation, under mild time pressure, and the test can tell a light edit from an approve-without-reading.
-2. **Head of product:** the cited draft beats a folder of canned snippets on time to an approved correct reply, or on errors caught. The prototype provides the draft side; the snippet side runs manually with a printed folder of the same synthetic policy text.
+2. **Head of product:** the cited draft beats a folder of canned snippets on time to an approved correct reply, or on errors caught. The prototype now runs both sides: a mode switch in the header offers AI draft and Snippets, and the snippet folder carries one deliberately stale snippet (the old $5 fee) mirroring the planted citation error.
 3. **Chief executive sponsor:** one planted error is caught, corrected and logged end-to-end in the session.
 
 ## How the prototype measures this

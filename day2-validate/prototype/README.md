@@ -36,3 +36,11 @@ The mockup now measures the session itself (see `day2-validate/validation-brief.
 5. Copy the results into `day2-validate/validation-brief.md` under Results. Reload to reset.
 
 Nothing is stored or sent; all measurement lives in the page until reload.
+
+## The snippet head-to-head
+
+The header has a mode switch: **AI draft** and **Snippets**. Snippet mode is the cheap alternative — no AI, the officer composes the reply from a folder of canned snippets (all made up). One snippet is deliberately out of date: it still states the $5 renewal fee the policy page no longer has, mirroring the planted citation error in draft mode.
+
+To run the comparison, answer the same enquiries in both modes, then click Finish test. The results screen shows average time to a decision per mode and whether each mode's planted error was caught. The results screen also flags any draft approved with zero citations opened as "approved without reading" — a kill-switch signal even when the reply happened to be right.
+
+The four assumptions this tests, each with its kill switch and success signal, are in `day2-validate/build-log.md` under Riskiest assumptions.
