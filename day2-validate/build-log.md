@@ -16,7 +16,11 @@ Pushback exercise: three leaders challenge the prototype, one at a time. Their o
 
 ### 2. Head of product
 
-_Pending._
+**Objection:** The baseline and the goal contradict each other: the one-pager's status quo says 90% within SLA and a 1-day average first reply, while the goal is a correct first reply within one working day — by those numbers the goal is already met. The real value is the 10 minutes of policy search per enquiry, but it is unsized (enquiries per day, officers, value of recovered minutes). Citation-grounded drafting is the hardest version of the feature, 1 in 5 enquiries has an unreadable image capping coverage at 80%, and a cheap text-expander with canned snippets might do the job for a tenth of the cost.
+
+**My reply:** Accepted the contradiction; the one-pager will be fixed — either correct the baseline numbers or rebuild the case honestly on search minutes saved, sized as enquiries per day x minutes x officer time, with labelled synthetic values. On the text-expander: snippets solve the writing but leave the finding, and stale snippets after a policy change are harder to catch than stale citations — but that is a hypothesis, so the test session will run a head-to-head: the same synthetic enquiries answered with the cited draft versus a snippet folder, measuring time to an approved correct reply and errors caught. If the cited draft does not win on time or error rate, the recommendation will be to fund the snippets. On images: those enquiries already take the slow path today; the prototype routes them to the officer with no draft, so the ROI case rests on the 80% and image handling is deliberately out of scope.
+
+**What the prototype must prove:** The cited draft beats canned snippets on time to an approved correct reply, or on errors caught, in a like-for-like test.
 
 ### 3. Chief executive sponsor
 
