@@ -2,6 +2,10 @@
 
 What changed in the prototype, newest first. One entry per change.
 
+## 18 Nov 2026 — measurement build
+
+Turned the mockup into a measuring instrument for the assumption in `validation-brief.md`. Added: a 10-minute session clock (Start test session), per-enquiry tracking of time to decision, citations opened and share of words changed, a planted stale-fee error in a new synthetic enquiry (the draft says $5; the cited passage says renewal is free over 70), and a Finish test results screen that reads the numbers against the kill-switch lines. All new data is made up. This answers the directors' challenge: the test can now tell a light edit from a rubber stamp, and passes only if the planted error is caught.
+
 ## Three leaders
 
 Pushback exercise: three leaders challenge the prototype, one at a time. Their objections, my replies, and what the prototype must prove. The leaders are role-played; the exchange is part of Day 2 validation.

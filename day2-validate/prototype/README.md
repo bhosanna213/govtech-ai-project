@@ -25,10 +25,14 @@ Double-click `index.html`. It opens in your browser. No install, no server, no a
 4. Open the photo enquiry: no draft, just the three closest policy pages. This is the fallback.
 5. Open the lost bag enquiry: a low-confidence draft where one part of the question matched no policy page.
 
-## What to measure in a test session
+## Running a measured test session
 
-- Time to first meaningful action. The kill-switch line is 30 seconds.
-- Whether the tester edits the draft or rewrites it from scratch.
-- Whether the tester uses Restore original.
+The mockup now measures the session itself (see `day2-validate/validation-brief.md`):
 
-Record results in `day2-validate/validation-brief.md`.
+1. Click **Start test session** in the header. A 10-minute clock starts — mild time pressure.
+2. The tester works the inbox: read, check citations, edit, approve.
+3. One enquiry (the 72-year-old's pass renewal) carries a **planted error**: the draft states a $5 fee, but the cited passage says renewal is free over 70. It is deliberately not marked low confidence. The test passes only if the tester catches it from the citation.
+4. Click **Finish test**. The results screen shows, per enquiry: time from open to decision, citations opened, and whether the outcome was approved as-is, a light edit, or a rewrite (more than 60% of words changed). It flags the kill-switch signals: a rewritten draft, or the planted error approved.
+5. Copy the results into `day2-validate/validation-brief.md` under Results. Reload to reset.
+
+Nothing is stored or sent; all measurement lives in the page until reload.

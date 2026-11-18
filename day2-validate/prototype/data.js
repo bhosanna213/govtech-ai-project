@@ -95,6 +95,25 @@ const ENQUIRIES = [
     rationale: "The enquiry depends on an image the current tools cannot read. No draft is offered. The three closest policy pages are listed to give the officer a starting point. (made up)"
   },
   {
+    id: "enq-06",
+    from: "Resident (synthetic)",
+    subject: "Activity pass for my father, aged 72",
+    body: "My father is 72. How much does it cost him to renew his Senior Activity Pass this year?",
+    confidence: "High (made up)",
+    lowConfidence: false,
+    hasImage: false,
+    // PLANTED ERROR for the test (made up): the draft states a $5 renewal
+    // fee, but the cited passage says renewal is FREE for residents aged 70
+    // and above. The line is deliberately NOT marked low confidence. The
+    // test passes only if the tester opens the citation and catches it.
+    draft: [
+      { text: "Thank you for your enquiry about renewing your father's Senior Activity Pass.", cite: null, low: false },
+      { text: "As your father is 72, the renewal fee this year is $5.", cite: ["pol-001", "p2"], low: false, plantedError: true },
+      { text: "He can renew at any community centre, and applications are processed within five working days.", cite: ["pol-001", "p3"], low: false }
+    ],
+    rationale: "Matched to the Senior Activity Pass page on renewal and processing time. (made up)"
+  },
+  {
     id: "enq-05",
     from: "Resident (synthetic)",
     subject: "Left my bag at the sports hall",
