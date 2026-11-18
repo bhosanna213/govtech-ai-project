@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!-- Clickable mockup for Scenario A: ServiceSG enquiry response.
+     All data is synthetic (see data.js). No AI is called; drafts are scripted.
+     Open this file in a browser. No server or install needed. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceSG draft reply mockup (synthetic)</title>
+<style>
+  :root {
+    --ink: #1a2332; --muted: #5b6678; --line: #d9dee7;
+    --accent: #0f4c81; --accent-soft: #e8f0f8;
+    --warn: #8a5a00; --warn-soft: #fff6e0;
+    --ok: #1e6b3a; --ok-soft: #e7f4ec;
+    --bg: #f4f6f9; --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--accent); color: #fff; padding: 10px 20px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .tag { font-size: 12px; background: rgba(255,255,255,.18); padding: 2px 10px; border-radius: 10px; }
+  .wrap { display: flex; min-height: calc(100vh - 44px); }
+  /* Inbox */
+  .inbox { width: 300px; border-right: 1px solid var(--line); background: var(--card); flex-shrink: 0; }
+  .inbox h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 14px 16px 6px; margin: 0; }
+  .enq { padding: 12px 16px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .enq:hover { background: var(--accent-soft); }
+  .enq.active { background: var(--accent-soft); border-left: 3px solid var(--accent); padding-left: 13px; }
+  .enq .subj { font-weight: 600; font-size: 14px; }
+  .enq .from { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .badge { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 9px; margin-top: 6px; }
+  .badge.high { background: var(--ok-soft); color: var(--ok); }
+  .badge.low { background: var(--warn-soft); color: var(--warn); }
+  .badge.img { background: #eee; color: var(--muted); }
+  /* Main panes */
+  .main { flex: 1; display: flex; gap: 16px; padding: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .pane { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; }
+  .pane h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .enquiry-pane { flex: 1; min-width: 260px; }
+  .draft-pane { flex: 1.4; min-width: 320px; }
+  .cite-pane { flex: 1; min-width: 260px; position: sticky; top: 16px; }
+  .photo-placeholder { border: 2px dashed var(--line); border-radius: 6px; padding: 26px 10px; text-align: center; color: var(--muted); font-size: 13px; margin-top: 12px; }
+  /* Draft lines */
+  .line { padding: 6px 8px; border-radius: 6px; margin: 2px 0; line-height: 1.5; }
+  .line.cited { cursor: pointer; }
+  .line.cited:hover, .line.cited.showing { background: var(--accent-soft); }
+  .line.low { border-bottom: 2px dotted var(--warn); background: var(--warn-soft); }
+  .cite-chip { font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 0 7px; margin-left: 6px; white-space: nowrap; }
+  .low-chip { font-size: 11px; color: var(--warn); margin-left: 6px; white-space: nowrap; }
+  .watermark { font-size: 11px; color: var(--warn); margin-bottom: 8px; }
+  .rationale { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; }
+  /* Buttons */
+  .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font-size: 13.5px; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .draft-editor { width: 100%; min-height: 150px; font: inherit; line-height: 1.5; padding: 10px; border: 1px solid var(--accent); border-radius: 6px; }
+  .approved-note { background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: 10px 14px; margin-top: 12px; font-size: 14px; }
+  /* Citation panel */
+  .passage { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; }
+  .passage.hit { border-color: var(--accent); background: var(--accent-soft); }
+  .passage .src { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+  .closest { margin: 0; padding-left: 18px; }
+  .closest li { margin-bottom: 8px; font-size: 14px; }
+  .empty-hint { color: var(--muted); font-size: 13.5px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ServiceSG enquiry inbox — draft reply mockup</h1>
+  <span class="tag">Prototype · all data synthetic (made up)</span>
+  <span class="tag">No AI called · drafts are scripted</span>
+</header>
+
+<div class="wrap">
+  <nav class="inbox" id="inbox"><h2>Shared inbox (synthetic)</h2></nav>
+
+  <main class="main" id="main"></main>
+</div>
+
+<footer>Day 2 validation prototype · Scenario A · every name, number and policy in this page is made up.</footer>
+
+<script src="data.js"></script>
+<script>
+let activeId = ENQUIRIES[0].id;
+let editing = false;
+let approved = {};          // enquiry id -> true once approved
+let editedText = {};        // enquiry id -> officer's edited draft text
+let shownCite = null;       // [pageId, passageId] currently highlighted
+
+function originalDraftText(enq) {
+  return enq.draft.map(l => l.text).join("\n\n");
+}
+
+function renderInbox() {
+  const nav = document.getElementById("inbox");
+  nav.innerHTML = "<h2>Shared inbox (synthetic)</h2>";
+  for (const enq of ENQUIRIES) {
+    const div = document.createElement("div");
+    div.className = "enq" + (enq.id === activeId ? " active" : "");
+    let badge;
+    if (enq.hasImage) badge = '<span class="badge img">has image · cannot read</span>';
+    else if (enq.lowConfidence) badge = '<span class="badge low">low confidence</span>';
+    else badge = '<span class="badge high">draft ready</span>';
+    div.innerHTML = '<div class="subj">' + enq.subject + '</div>' +
+                    '<div class="from">' + enq.from + '</div>' + badge +
+                    (approved[enq.id] ? ' <span class="badge high">approved</span>' : '');
+    div.onclick = () => { activeId = enq.id; editing = false; shownCite = null; render(); };
+    nav.appendChild(div);
+  }
+}
+
+function renderMain() {
+  const enq = ENQUIRIES.find(e => e.id === activeId);
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+
+  // Enquiry pane
+  const ep = document.createElement("section");
+  ep.className = "pane enquiry-pane";
+  ep.innerHTML = "<h3>Enquiry</h3><p><strong>" + enq.subject + "</strong></p><p>" + enq.body + "</p>" +
+    (enq.hasImage ? '<div class="photo-placeholder">📷 Attached photo (synthetic placeholder)<br>The current tools cannot read this image.</div>' : "") +
+    '<p class="rationale">Confidence: ' + enq.confidence + "</p>";
+  main.appendChild(ep);
+
+  // Draft pane
+  const dp = document.createElement("section");
+  dp.className = "pane draft-pane";
+
+  if (enq.draft === null) {
+    dp.innerHTML = "<h3>No draft</h3>" +
+      "<p>This enquiry depends on an image the current tools cannot read, so no draft is offered.</p>" +
+      "<p>The three closest policy pages are listed on the right as a starting point.</p>" +
+      '<p class="rationale">' + enq.rationale + "</p>" +
+      '<div class="actions"><button class="primary" onclick="alert(\'Mockup: in the real tool this opens a blank reply for the officer to write.\')">Write reply myself</button></div>';
+    main.appendChild(dp);
+  } else if (approved[enq.id]) {
+    dp.innerHTML = "<h3>Draft reply</h3>" +
+      '<div class="approved-note">✓ Approved and queued for sending. The officer\'s edits are logged. (mockup — nothing is sent)</div>' +
+      '<div class="line" style="white-space:pre-wrap; margin-top:10px;">' + (editedText[enq.id] || originalDraftText(enq)) + "</div>";
+    main.appendChild(dp);
+  } else if (editing) {
+    dp.innerHTML = "<h3>Draft reply — editing</h3>";
+    const ta = document.createElement("textarea");
+    ta.className = "draft-editor";
+    ta.id = "editor";
+    ta.value = editedText[enq.id] || originalDraftText(enq);
+    dp.appendChild(ta);
+    const act = document.createElement("div");
+    act.className = "actions";
+    act.innerHTML =
+      '<button class="primary" onclick="saveAndApprove()">Approve</button>' +
+      '<button onclick="saveEdit()">Save edit</button>' +
+      '<button onclick="restoreOriginal()">Restore original</button>';
+    dp.appendChild(act);
+    main.appendChild(dp);
+  } else {
+    dp.innerHTML = "<h3>Draft reply</h3>" +
+      (enq.lowConfidence || enq.draft.some(l => l.low)
+        ? '<div class="watermark">⚠ DRAFT — contains low-confidence lines (dotted underline). Check before approving.</div>' : "");
+    for (const line of enq.draft) {
+      const div = document.createElement("div");
+      div.className = "line" + (line.cite ? " cited" : "") + (line.low ? " low" : "");
+      let chips = "";
+      if (line.cite) {
+        const page = POLICY_PAGES[line.cite[0]];
+        chips += '<span class="cite-chip">cites: ' + page.title.replace(" (made up)", "") + "</span>";
+        div.onclick = () => { shownCite = line.cite; render(); };
+        if (shownCite && shownCite[0] === line.cite[0] && shownCite[1] === line.cite[1]) div.classList.add("showing");
+      }
+      if (line.low) chips += '<span class="low-chip">low confidence</span>';
+      div.innerHTML = line.text + chips;
+      dp.appendChild(div);
+    }
+    const rat = document.createElement("p");
+    rat.className = "rationale";
+    rat.textContent = "Why this draft: " + enq.rationale;
+    dp.appendChild(rat);
+    const act = document.createElement("div");
+    act.className = "actions";
+    act.innerHTML =
+      '<button class="primary" onclick="approve()">Approve</button>' +
+      '<button onclick="startEdit()">Edit</button>' +
+      '<button onclick="restoreOriginal()" ' + (editedText[enq.id] ? "" : "disabled") + '>Restore original</button>';
+    dp.appendChild(act);
+    if (editedText[enq.id]) {
+      const note = document.createElement("p");
+      note.className = "rationale";
+      note.textContent = "You have unsaved officer edits on this draft. Approve sends your edited version.";
+      dp.appendChild(note);
+    }
+    main.appendChild(dp);
+  }
+
+  // Citation pane
+  const cp = document.createElement("section");
+  cp.className = "pane cite-pane";
+  if (enq.draft === null && enq.closestPages) {
+    cp.innerHTML = "<h3>Three closest policy pages</h3>";
+    const ul = document.createElement("ul");
+    ul.className = "closest";
+    for (const pid of enq.closestPages) {
+      const li = document.createElement("li");
+      li.textContent = POLICY_PAGES[pid].title;
+      ul.appendChild(li);
+    }
+    cp.appendChild(ul);
+  } else if (shownCite) {
+    const page = POLICY_PAGES[shownCite[0]];
+    cp.innerHTML = "<h3>Cited passage</h3>";
+    for (const [pid, text] of Object.entries(page.passages)) {
+      const div = document.createElement("div");
+      div.className = "passage" + (pid === shownCite[1] ? " hit" : "");
+      div.innerHTML = text + '<div class="src">' + page.title + " · passage " + pid + "</div>";
+      cp.appendChild(div);
+    }
+  } else {
+    cp.innerHTML = '<h3>Cited passage</h3><p class="empty-hint">Click a draft line with a citation chip to see the exact policy passage it came from, highlighted.</p>';
+  }
+  main.appendChild(cp);
+}
+
+function approve() {
+  approved[activeId] = true;
+  editing = false;
+  render();
+}
+function startEdit() { editing = true; render(); }
+function saveEdit() {
+  editedText[activeId] = document.getElementById("editor").value;
+  editing = false;
+  render();
+}
+function saveAndApprove() {
+  editedText[activeId] = document.getElementById("editor").value;
+  approved[activeId] = true;
+  editing = false;
+  render();
+}
+function restoreOriginal() {
+  delete editedText[activeId];
+  editing = false;
+  render();
+}
+function render() { renderInbox(); renderMain(); }
+render();
+</script>
+</body>
+</html>
