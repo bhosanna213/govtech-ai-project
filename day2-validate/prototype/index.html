@@ -310,6 +310,9 @@ function renderModeSwitch() {
 function setMode(m) {
   mode = m;
   editing = false; shownCite = null; showResults = false;
+  for (const id in editedText) delete editedText[id];
+  for (const id in officerText) delete officerText[id];
+  for (const id in snippetText) delete snippetText[id];
   touchOpen(activeId);
   render();
 }
