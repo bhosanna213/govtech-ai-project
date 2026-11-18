@@ -24,7 +24,11 @@ Pushback exercise: three leaders challenge the prototype, one at a time. Their o
 
 ### 3. Chief executive sponsor
 
-_Pending._
+**Objection:** The others asked whether it works; her question is who answers when it fails. At volume, an 8-in-10 pass rate means failures carry her name: a wrong fee approved by an officer becomes "government AI gives resident wrong information" — a headline, a parliamentary question, and a freeze on every AI initiative. The design has guardrails for the officer but no accountability: if an approved-but-wrong reply defaults to the officer who clicked Approve, the tool transfers blame downward, officers will protect themselves by rewriting everything, and the kill-switch condition arrives on schedule. Also: the one-pager's success signal date of 20 November is this Friday.
+
+**My reply:** The error belongs to the cause, not the click. Before the pilot: (1) a one-page accountability note, agreed with the frontline director, tracing a wrong reply to its source — stale page, bad draft, or rushed approval — each with its own owner and fix; if the note cannot be agreed, the pilot does not start. (2) Prove the incident path in the test session: plant one error end-to-end and watch it get caught, the resident corrected, the lesson logged; if it is not caught, the pilot does not proceed. (3) Translate the pilot thresholds into wrong-but-sent replies per week at synthetic volume, and bring her that number to accept or reject before the pilot. (4) The 20 November date is an honest error, set early and never revisited; the one-pager will get a realistic date once test sessions are scheduled. The ask is not approval to ship but approval to run the test that produces the note, the incident-path proof and the real numbers.
+
+**What the prototype must prove:** A planted error is caught, corrected and logged end-to-end in the test session, under an accountability design agreed with the frontline director.
 
 ## 18 Nov 2026
 
