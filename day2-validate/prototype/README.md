@@ -1,52 +1,44 @@
-# Prototype: clickable mockup of the draft reply moment
+# Prototype — ServiceSG draft reply mockup
 
-**Scenario:** A · ServiceSG enquiry response
-**All data is synthetic.** Every enquiry, policy page, name and number is made up.
+Scenario A. All data is synthetic and labelled as made up. No AI is called, nothing is sent, no server or account needed. Double-click `index.html` to open.
 
-## What this is
+## What it does
 
-A one-page clickable mockup of the moment an officer opens an enquiry and sees a drafted first reply. It tests the Day 1 hypothesis: will officers send an AI-drafted reply after a light edit when every draft cites the policy page it used?
+An officer opens a shared enquiry inbox and sees eight synthetic enquiries. In **AI draft** mode each enquiry shows a drafted reply with citation chips. Click a chip to see the exact policy passage, highlighted, with its "last reviewed" date. The officer can approve, edit or restore the original. In **Snippet** mode there is no AI — the officer composes a reply from a folder of nine canned snippets.
 
-## What it deliberately fakes
+## Eight enquiries, six situations
 
-- No AI is called. The drafts, confidence levels and rationales are scripted in `data.js`.
-- Nothing is sent. Approve only marks the enquiry as approved on screen.
-- The photo in enquiry 4 is a placeholder. It shows the handoff for images the tools cannot read.
-- One policy page (Senior Activity Pass) is deliberately stale — last reviewed more than 90 days ago. The prototype flags it with a warning chip on draft lines and a banner in the citation panel.
-- One enquiry is an escalation (complaint about staff). The prototype shows the escalation list and produces no draft.
-- One enquiry is a follow-up referencing a prior phone call. The draft acknowledges the earlier contact but does not confirm a timeline that is not in a policy page.
+| Enquiry | What it tests |
+|---|---|
+| Senior Activity Pass for my mother | Standard draft, three citations, all high confidence |
+| Refund for cancelled hall booking | One line flagged low confidence (date calculation) |
+| Tap leaking again | Second visit this year — draft cites the visit limit |
+| Photo of a letter | No draft — image the tools cannot read; three closest pages shown |
+| Activity pass for my father, aged 72 | **Planted error**: draft says $5 fee; cited passage says renewal is free over 70. Not flagged low confidence. Cited page is stale (last reviewed more than 90 days ago) |
+| Left my bag at the sports hall | Multi-topic: lost item answered with citations, gym-pass transfer flagged as uncovered |
+| Complaint about counter staff | **Escalation**: matches the escalation list; no draft produced, case routed to a human lead |
+| Still waiting for my hall booking refund | **Follow-up**: draft acknowledges a prior phone call but does not confirm the 5-day timeline (no policy page states it) |
 
-## How to open it
+## Measurement
 
-Double-click `index.html`. It opens in your browser. No install, no server, no account.
+Click **Start test session** for a 10-minute clock. The prototype tracks, per enquiry and per mode:
 
-## What to try
+- Time from first open to decision
+- Number of cited passages opened
+- Share of words changed (bag-of-words)
+- Whether the planted error survived into an approved reply
 
-1. Open the first enquiry. Click a draft line with a citation chip: the exact policy passage appears on the right, highlighted.
-2. Click Edit, change a line, then Save edit. Restore original brings back the AI draft.
-3. Open the hall booking enquiry: one line has a dotted underline and the draft carries a watermark, because that line is low confidence.
-4. Open the photo enquiry: no draft, just the three closest policy pages. This is the fallback.
-5. Open the lost bag enquiry: a low-confidence draft where one part of the question matched no policy page.
-6. Open the complaint enquiry: an escalation — the prototype shows the escalation list and produces no draft.
-7. Open the refund follow-up: a follow-up enquiry referencing a prior call. The draft acknowledges the call but does not confirm the 5-day timeline (no policy page states it).
-8. Click a citation on the Senior Activity Pass enquiries: the citation pane shows "Last reviewed" and a stale-page warning (more than 90 days old).
+Click **Finish test** for a results screen comparing both modes. It flags three kill-switch signals:
 
-## Running a measured test session
+1. Planted error approved (draft mode: wrong fee; snippet mode: stale snippet)
+2. Draft rewritten (more than 60% of words changed)
+3. Draft approved without opening a single citation (rubber-stamping)
 
-The mockup now measures the session itself (see `day2-validate/validation-brief.md`):
+## Data files
 
-1. Click **Start test session** in the header. A 10-minute clock starts — mild time pressure.
-2. The tester works the inbox: read, check citations, edit, approve.
-3. One enquiry (the 72-year-old's pass renewal) carries a **planted error**: the draft states a $5 fee, but the cited passage says renewal is free over 70. It is deliberately not marked low confidence. The test passes only if the tester catches it from the citation.
-4. Click **Finish test**. The results screen shows, per enquiry: time from open to decision, citations opened, and whether the outcome was approved as-is, a light edit, or a rewrite (more than 60% of words changed). It flags the kill-switch signals: a rewritten draft, or the planted error approved.
-5. Copy the results into `day2-validate/validation-brief.md` under Results. Reload to reset.
+- `data.js` — four policy pages (one stale), eight enquiries, nine canned snippets (one stale), a tone guide and an escalation list. Everything is made up.
+- `index.html` — layout, rendering and measurement logic. No external dependencies.
 
-Nothing is stored or sent; all measurement lives in the page until reload.
+## What to do with the results
 
-## The snippet head-to-head
-
-The header has a mode switch: **AI draft** and **Snippets**. Snippet mode is the cheap alternative — no AI, the officer composes the reply from a folder of canned snippets (all made up). One snippet is deliberately out of date: it still states the $5 renewal fee the policy page no longer has, mirroring the planted citation error in draft mode.
-
-To run the comparison, answer the same enquiries in both modes, then click Finish test. The results screen shows average time to a decision per mode and whether each mode's planted error was caught. The results screen also flags any draft approved with zero citations opened as "approved without reading" — a kill-switch signal even when the reply happened to be right.
-
-The four assumptions this tests, each with its kill switch and success signal, are in `day2-validate/build-log.md` under Riskiest assumptions.
+Copy them into `day2-validate/validation-brief.md` under Results. The four assumptions this prototype tests, each with its kill switch and success signal, are in `day2-validate/build-log.md` under Riskiest assumptions.
