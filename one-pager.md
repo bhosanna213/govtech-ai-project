@@ -20,9 +20,9 @@ The moment: an officer opens an enquiry and sees a relevant, clear drafted first
 
 ## Risks (market, technical, team)
 
-- Usability risk is the main one: will officers edit a cited draft, or rewrite it from scratch? Plan: build a clickable mockup first.
-- Technical: some enquiries include images the current tools cannot read. Drafts must not state fees, dates or deadlines unless the cited page states them.
-- Market and team risks: not yet assessed. To be filled in Day 2 (validate).
+- Market: the shared enquiry inbox has no categorisation or filter, so officers struggle to find and triage messages before they can even start writing. If the real bottleneck is finding the right enquiry rather than drafting the reply, an AI draft solves the wrong problem. How we test it: in the prototype test session, time how long the tester spends reading and triaging each enquiry versus editing the draft. If triage time exceeds drafting time, the case for AI drafts weakens and the team should explore inbox categorisation first.
+- Technical: the policy pages the AI cites may be stale, especially in the week after a policy change when the inbox is busiest. A draft that confidently cites a stale page creates false trust — worse than no draft. How we test it: the prototype plants a stale-page error (the draft states a $5 fee; the cited passage says renewal is free for residents over 70, and the page is flagged as stale). If the tester approves the planted error, the kill switch fires.
+- Team: no one currently owns the policy pages the AI would cite. Without a named owner and a review cycle, pages go stale, drafts go wrong, and officers stop trusting the tool. How we test it: before the pilot, confirm a named policy-operations lead owns every cited page with a 90-day review cycle (documented in `day2-validate/context-skill.md`). If no owner is agreed, the pilot does not start.
 
 ## Build plan and handoff
 
