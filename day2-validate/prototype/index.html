@@ -106,6 +106,9 @@
   .stale-warning { font-size: 12px; color: var(--warn); background: var(--warn-soft); border: 1px solid rgba(138,90,0,.15); border-radius: 8px; padding: 7px 12px; margin-bottom: 10px; }
   .prior-context { border: 1px solid var(--brass); background: var(--brass-soft); border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-size: 13px; line-height: 1.55; }
   .prior-context strong { font-size: 12px; color: var(--brass); }
+  .lookup-failed { background: var(--warn-soft); border: 1px solid rgba(138,90,0,.2); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; line-height: 1.55; font-size: 13.5px; }
+  .lookup-failed strong { color: var(--warn); }
+  .retry-info { font-size: 12.5px; color: var(--accent); font-weight: 500; margin: 8px 0 4px; }
 </style>
 </head>
 <body>
@@ -144,6 +147,12 @@ let filterTopic = "all";
 let filterAuthor = "all";
 let filterDate = "all";
 const PROTO_TODAY = new Date(Math.max(...ENQUIRIES.filter(e => e.receivedDate).map(e => new Date(e.receivedDate + "T00:00:00").getTime())));
+const FORCED_LOOKUP_FAILURE = true;
+function isFeeEnquiry(enq) { return /(fee|cost|charg|price|refund|deposit|how much|payment)/.test(enq.body.toLowerCase()); }
+const lookupState = {};
+const retryCount = {};
+const officerText = {};
+for (const e of ENQUIRIES) { lookupState[e.id] = (FORCED_LOOKUP_FAILURE && isFeeEnquiry(e)) ? "failed" : "ok"; retryCount[e.id] = 0; }
 const track = {};                   // per enquiry, per mode
 for (const e of ENQUIRIES) track[e.id] = {
   draft:   { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 },
@@ -462,6 +471,39 @@ function renderMain() {
   const dp = document.createElement("section");
   dp.className = "pane draft-pane";
 
+  if (!approved[enq.id] && enq.draft !== null && (lookupState[enq.id] === "failed" || lookupState[enq.id] === "retrying")) {
+    (function() {
+      var isRetrying = lookupState[enq.id] === "retrying";
+      var retries = retryCount[enq.id];
+      var failMsg = '<div class="lookup-failed"><strong>⚠ Policy lookup failed</strong><br>';
+      if (retries === 0) failMsg += 'The policy lookup returned no matching pages for this enquiry. This can happen when pages are being updated or the search does not match any indexed content.';
+      else if (retries === 1) failMsg += 'The retry also returned nothing. You can try once more or write the reply yourself.';
+      else failMsg += 'The lookup has failed ' + (retries + 1) + ' times. Consider writing the reply manually or contacting the policy team.';
+      failMsg += '</div>';
+      if (isRetrying) failMsg += '<p class="retry-info">Retrying lookup…</p>';
+      dp.innerHTML = "<h3>Draft reply</h3>" + failMsg +
+        '<p class="empty-hint">No draft is available — no policy page was returned. Write the reply below. Your text is kept even if you retry the lookup.</p>';
+      var fta = document.createElement("textarea");
+      fta.className = "draft-editor";
+      fta.id = "failEditor";
+      fta.value = officerText[enq.id] || "";
+      fta.placeholder = "Type your reply here…";
+      fta.oninput = function() { officerText[enq.id] = fta.value; };
+      dp.appendChild(fta);
+      var fact = document.createElement("div");
+      fact.className = "actions";
+      fact.innerHTML = '<button onclick="retryLookup(\'' + enq.id + '\')"' + (isRetrying ? ' disabled' : '') + '>Retry lookup</button>' +
+        '<button class="primary" onclick="approveFailed()">Approve</button>';
+      dp.appendChild(fact);
+      main.appendChild(dp);
+      var fcp = document.createElement("section");
+      fcp.className = "pane cite-pane";
+      fcp.innerHTML = '<h3>Cited passage</h3><p class="empty-hint">No policy pages were returned for this enquiry. The lookup needs to succeed before citations are available.</p>';
+      main.appendChild(fcp);
+    })();
+    return;
+  }
+
   if (enq.draft === null) {
     dp.innerHTML = "<h3>No draft</h3>" +
       "<p>This enquiry depends on an image the current tools cannot read, so no draft is offered.</p>" +
@@ -597,6 +639,32 @@ function saveAndApprove() {
 function restoreOriginal() {
   delete editedText[activeId];
   editing = false;
+  render();
+}
+function retryLookup(id) {
+  var ed = document.getElementById("failEditor");
+  if (ed) officerText[id] = ed.value;
+  lookupState[id] = "retrying";
+  render();
+  setTimeout(function() {
+    var ed2 = document.getElementById("failEditor");
+    if (ed2) officerText[id] = ed2.value;
+    var enq = ENQUIRIES.find(function(e) { return e.id === id; });
+    if (FORCED_LOOKUP_FAILURE && isFeeEnquiry(enq)) {
+      lookupState[id] = "failed";
+      retryCount[id]++;
+    } else {
+      lookupState[id] = "ok";
+    }
+    render();
+  }, 1500);
+}
+function approveFailed() {
+  var ed = document.getElementById("failEditor");
+  if (ed) officerText[activeId] = ed.value;
+  editedText[activeId] = officerText[activeId] || "";
+  approved[activeId] = true;
+  markDecided();
   render();
 }
 function render() { renderInbox(); renderModeSwitch(); renderClock(); renderMain(); }
