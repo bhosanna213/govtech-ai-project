@@ -30,7 +30,7 @@ Double-click `index.html` to open. No install, no build step.
 
 1. **Planted error hidden.** enq-06 (the $5 fee error) is a fee enquiry, so the forced lookup failure hides its draft. The planted-error kill switch cannot fire for that enquiry while the failure is active.
 2. **Rubber-stamp false positive.** The lookup-failure flow has no citations to open. Approving a failure-state reply shows "0 citations opened" and may trigger the rubber-stamping kill switch even though there were no citations available.
-3. **State bleeds across modes.** Officer text (`editedText`, `officerText`) persists when switching between AI draft and Snippet mode. Approvals are mode-specific but text is shared.
+3. ~~**State bleeds across modes.**~~ Fixed. `setMode()` now clears all officer text on switch.
 4. **Hardcoded dates.** `PROTO_TODAY` is the latest `receivedDate` in the data (18 Nov 2026). Date filters work relative to that, not today's date. Adding an enquiry without updating dates breaks the "Today" filter.
 
 ## First things to do
