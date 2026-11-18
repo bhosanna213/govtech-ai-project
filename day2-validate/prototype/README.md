@@ -12,6 +12,9 @@ A one-page clickable mockup of the moment an officer opens an enquiry and sees a
 - No AI is called. The drafts, confidence levels and rationales are scripted in `data.js`.
 - Nothing is sent. Approve only marks the enquiry as approved on screen.
 - The photo in enquiry 4 is a placeholder. It shows the handoff for images the tools cannot read.
+- One policy page (Senior Activity Pass) is deliberately stale — last reviewed more than 90 days ago. The prototype flags it with a warning chip on draft lines and a banner in the citation panel.
+- One enquiry is an escalation (complaint about staff). The prototype shows the escalation list and produces no draft.
+- One enquiry is a follow-up referencing a prior phone call. The draft acknowledges the earlier contact but does not confirm a timeline that is not in a policy page.
 
 ## How to open it
 
@@ -24,6 +27,9 @@ Double-click `index.html`. It opens in your browser. No install, no server, no a
 3. Open the hall booking enquiry: one line has a dotted underline and the draft carries a watermark, because that line is low confidence.
 4. Open the photo enquiry: no draft, just the three closest policy pages. This is the fallback.
 5. Open the lost bag enquiry: a low-confidence draft where one part of the question matched no policy page.
+6. Open the complaint enquiry: an escalation — the prototype shows the escalation list and produces no draft.
+7. Open the refund follow-up: a follow-up enquiry referencing a prior call. The draft acknowledges the call but does not confirm the 5-day timeline (no policy page states it).
+8. Click a citation on the Senior Activity Pass enquiries: the citation pane shows "Last reviewed" and a stale-page warning (more than 90 days old).
 
 ## Running a measured test session
 

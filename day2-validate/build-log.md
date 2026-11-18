@@ -38,6 +38,19 @@ The four assumptions the prototype must test, from `validation-brief.md` and the
 - Success signal: Every draft-mode approval is preceded by at least one opened citation.
 - Tested by: per-enquiry citation tracking, flagged on the results screen as "approved without reading".
 
+## 18 Nov 2026 — missing context fixes
+
+Closed six context gaps that could make the riskiest-assumption test fail for the wrong reason. Changes:
+
+1. **Policy page freshness** — every policy page in `data.js` now carries a `lastReviewed` date. pol-001 (Senior Activity Pass) is deliberately stale (last reviewed 15 Jul 2026, more than 90 days ago). The prototype shows "Last reviewed" in the citation pane and flags stale pages with a warning chip on draft lines and a banner in the citation panel.
+2. **Tone guidance** — added a `TONE_GUIDE` constant to `data.js` and a tone constraint to `skill-file.md`: plain, respectful, "you" not "the applicant", no jargon.
+3. **Fee/date accuracy rule** — added to `skill-file.md`: state a fee or date only if the cited passage states it; otherwise write "please confirm with [team]".
+4. **Expanded escalation** — `skill-file.md` now covers complaints about staff, appeals and vulnerable-resident flags, not just law enforcement/legal/regulator. Added an `ESCALATION_LIST` constant and a new escalation enquiry (enq-07, complaint about counter staff). The prototype shows an escalation notice with the full list; no draft is produced.
+5. **Follow-up context** — added a follow-up enquiry (enq-08, resident chasing a hall booking refund, referencing a prior call). The draft acknowledges the earlier contact and does NOT confirm the 5-day timeline, because no policy page states it. Added `priorContext` field and "Prior correspondence" display in the enquiry pane.
+6. **Coverage boundaries** — added to `skill-file.md`: if no policy page scores above the threshold, say so and list the three closest pages. Already handled in the prototype for the photo enquiry; now also documented as a constraint.
+
+Also added one new snippet (snip-09, follow-up acknowledgement) for the head-to-head test.
+
 ## 18 Nov 2026 — head-to-head and reading check
 
 Added the remaining two assumption tests. A mode switch (AI draft / Snippets) runs the head of product's head-to-head: in snippet mode there is no AI, the tester composes replies from a folder of eight canned snippets (made up), one deliberately stale with the old $5 fee. The results screen now compares average time to decision per mode, reports whether each mode's planted error was caught, and flags any draft approved with zero citations opened as "approved without reading" — the rubber-stamp kill-switch signal. Listed all four riskiest assumptions with risk type, kill switch and success signal (section above).

@@ -95,6 +95,10 @@
   .verdict { border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-size: 14px; }
   .verdict.pass { background: var(--ok-soft); color: var(--ok); border: 1px solid rgba(30,107,58,.15); }
   .verdict.fail { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(138,90,0,.2); }
+  .badge.escalation { background: #fde7e7; color: #a12d2d; }
+  .stale-warning { font-size: 12px; color: var(--warn); background: var(--warn-soft); border: 1px solid rgba(138,90,0,.15); border-radius: 8px; padding: 7px 12px; margin-bottom: 10px; }
+  .prior-context { border: 1px solid var(--brass); background: var(--brass-soft); border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-size: 13px; line-height: 1.55; }
+  .prior-context strong { font-size: 12px; color: var(--brass); }
 </style>
 </head>
 <body>
@@ -173,6 +177,23 @@ function plantedErrorSurvived(enq) {
   return finalText.includes("fee") && finalText.includes("$5");
 }
 
+// Stale-page detection: flag policy pages last reviewed more than 90 days ago.
+function daysSinceReviewed(pageId) {
+  const page = POLICY_PAGES[pageId];
+  if (!page || !page.lastReviewed) return null;
+  const reviewed = new Date(page.lastReviewed + "T00:00:00");
+  return Math.floor((Date.now() - reviewed) / (1000 * 60 * 60 * 24));
+}
+function isStale(pageId) {
+  const days = daysSinceReviewed(pageId);
+  return days !== null && days > 90;
+}
+function formatReviewDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+}
+
 function renderInbox() {
   const nav = document.getElementById("inbox");
   nav.innerHTML = "<h2>Shared inbox (synthetic)</h2>";
@@ -180,7 +201,9 @@ function renderInbox() {
     const div = document.createElement("div");
     div.className = "enq" + (enq.id === activeId ? " active" : "");
     let badge;
-    if (enq.hasImage) badge = '<span class="badge img">has image · cannot read</span>';
+    if (enq.escalation) badge = '<span class="badge escalation">escalation — no draft</span>';
+    else if (enq.hasImage) badge = '<span class="badge img">has image · cannot read</span>';
+    else if (enq.followUp) badge = '<span class="badge img">follow-up</span>';
     else if (enq.lowConfidence) badge = '<span class="badge low">low confidence</span>';
     else badge = '<span class="badge high">draft ready</span>';
     div.innerHTML = '<div class="subj">' + enq.subject + '</div>' +
@@ -292,8 +315,27 @@ function renderMain() {
   ep.className = "pane enquiry-pane";
   ep.innerHTML = "<h3>Enquiry</h3><p><strong>" + enq.subject + "</strong></p><p>" + enq.body + "</p>" +
     (enq.hasImage ? '<div class="photo-placeholder">📷 Attached photo (synthetic placeholder)<br>The current tools cannot read this image.</div>' : "") +
+    (enq.priorContext ? '<div class="prior-context"><strong>Prior correspondence on this case</strong><br>' + enq.priorContext + '</div>' : "") +
     '<p class="rationale">Confidence: ' + enq.confidence + "</p>";
   main.appendChild(ep);
+
+  // Escalation: no draft, route to human lead.
+  if (enq.escalation) {
+    const esc = document.createElement("section");
+    esc.className = "pane draft-pane";
+    esc.innerHTML = "<h3>Escalation</h3>" +
+      '<div class="stale-warning">⚠ This enquiry matches the escalation list: <strong>' + enq.escalationReason +
+      '</strong>. No draft is produced. The case is returned to the queue for a human lead.</div>' +
+      '<p class="rationale">' + enq.rationale + "</p>";
+    main.appendChild(esc);
+    const cp = document.createElement("section");
+    cp.className = "pane cite-pane";
+    cp.innerHTML = '<h3>Escalation list</h3><ul class="closest">' +
+      ESCALATION_LIST.map(function(c) { return "<li>" + c + "</li>"; }).join("") + "</ul>" +
+      '<p class="empty-hint">Enquiries matching any category on this list are routed to a human lead. The AI does not draft a reply.</p>';
+    main.appendChild(cp);
+    return;
+  }
 
   // Snippet mode: no AI draft — compose from canned snippets.
   if (mode === "snippet") {
@@ -379,6 +421,7 @@ function renderMain() {
       if (line.cite) {
         const page = POLICY_PAGES[line.cite[0]];
         chips += '<span class="cite-chip">cites: ' + page.title.replace(" (made up)", "") + "</span>";
+        if (isStale(line.cite[0])) chips += '<span class="low-chip" style="color:var(--warn);">⚠ stale page</span>';
         div.onclick = () => { shownCite = line.cite; track[enq.id].draft.citesOpened++; render(); };
         if (shownCite && shownCite[0] === line.cite[0] && shownCite[1] === line.cite[1]) div.classList.add("showing");
       }
@@ -421,7 +464,13 @@ function renderMain() {
     cp.appendChild(ul);
   } else if (shownCite) {
     const page = POLICY_PAGES[shownCite[0]];
-    cp.innerHTML = "<h3>Cited passage</h3>";
+    const days = daysSinceReviewed(shownCite[0]);
+    const staleNote = isStale(shownCite[0])
+      ? '<div class="stale-warning">⚠ STALE PAGE — last reviewed more than 90 days ago. Check whether this passage is still current before approving.</div>'
+      : '';
+    cp.innerHTML = "<h3>Cited passage</h3>" +
+      '<p style="font-size:12px; color:var(--muted);">Last reviewed: ' + formatReviewDate(page.lastReviewed) +
+      (days !== null ? ' (' + days + ' days ago)' : '') + '</p>' + staleNote;
     for (const [pid, text] of Object.entries(page.passages)) {
       const div = document.createElement("div");
       div.className = "passage" + (pid === shownCite[1] ? " hit" : "");
