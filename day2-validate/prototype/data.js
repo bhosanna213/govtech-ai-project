@@ -5,6 +5,7 @@
 const POLICY_PAGES = {
   "pol-001": {
     title: "Senior Activity Pass — eligibility and fees (made up)",
+    lastReviewed: "2026-07-15",
     passages: {
       "p1": "Residents aged 60 and above may apply for the Senior Activity Pass at any community centre. (made up)",
       "p2": "The pass costs $12 per year. Renewal is free for residents aged 70 and above. (made up)",
@@ -13,6 +14,7 @@ const POLICY_PAGES = {
   },
   "pol-002": {
     title: "Community Hall booking — rules for residents (made up)",
+    lastReviewed: "2026-10-01",
     passages: {
       "p1": "Residents may book the community hall up to 60 days in advance. (made up)",
       "p2": "Bookings are confirmed only after payment of the $50 deposit. (made up)",
@@ -21,6 +23,7 @@ const POLICY_PAGES = {
   },
   "pol-003": {
     title: "Minor home repair assistance — who qualifies (made up)",
+    lastReviewed: "2026-09-10",
     passages: {
       "p1": "The scheme covers leaking taps, faulty light switches and door hinges for registered households. (made up)",
       "p2": "Each household may request assistance up to twice per calendar year. (made up)",
@@ -29,12 +32,35 @@ const POLICY_PAGES = {
   },
   "pol-004": {
     title: "Lost item claims at public facilities (made up)",
+    lastReviewed: "2026-11-02",
     passages: {
       "p1": "Items found at public facilities are held at the facility office for 30 days. (made up)",
       "p2": "Claimants must describe the item and show identification at collection. (made up)"
     }
   }
 };
+
+// Tone guide for citizen-facing drafts (made up). The AI follows this register.
+const TONE_GUIDE = {
+  register: "Plain, respectful, one reading level below formal.",
+  rules: [
+    "Address the resident as 'you' and 'your', not 'the applicant'.",
+    "No acronyms unless the resident used one first.",
+    "No jargon. Use everyday words.",
+    "One topic, one paragraph, each with its own citation."
+  ]
+};
+
+// Escalation list (made up). Enquiries matching any category go to a human
+// lead. The AI must not draft a reply for these.
+const ESCALATION_LIST = [
+  "Law enforcement",
+  "Legal matters",
+  "Regulator enquiries",
+  "Complaints about staff",
+  "Appeals against decisions",
+  "Vulnerable-resident flags"
+];
 
 const ENQUIRIES = [
   {
@@ -127,6 +153,41 @@ const ENQUIRIES = [
       { text: "On transferring your gym pass: we could not find a policy page covering pass transfers, so this part needs an officer's answer.", cite: null, low: true }
     ],
     rationale: "The lost-item part matched the lost item claims page. The gym pass transfer question matched no policy page, so overall confidence is low and the draft is marked for careful review. (made up)"
+  },
+  // ESCALATION ENQUIRY (made up): complaint about staff. The escalation list
+  // says these go to a human lead. The AI produces no draft.
+  {
+    id: "enq-07",
+    from: "Resident (synthetic)",
+    subject: "Complaint about counter staff",
+    body: "I visited the community centre yesterday to ask about my Senior Activity Pass. The officer at counter 3 was very rude and refused to help me. I want to make a formal complaint.",
+    confidence: "N/A — escalation (made up)",
+    lowConfidence: false,
+    hasImage: false,
+    escalation: true,
+    escalationReason: "Complaints about staff",
+    draft: null,
+    rationale: "The enquiry is a complaint about a staff member. It matches the escalation list (complaints about staff). No draft is produced. The case is routed to a human lead. (made up)"
+  },
+  // FOLLOW-UP ENQUIRY (made up): resident references a previous call about
+  // their hall booking refund. The draft acknowledges the prior contact and
+  // does NOT confirm the 5-day timeline, because no policy page states it.
+  {
+    id: "enq-08",
+    from: "Resident (synthetic)",
+    subject: "Still waiting for my hall booking refund",
+    body: "I called last week about my community hall booking refund and your colleague said it would take 5 working days. It has been 7 days and I still have not received it. Where is my refund?",
+    confidence: "High (made up)",
+    lowConfidence: false,
+    hasImage: false,
+    followUp: true,
+    priorContext: "11 Nov 2026 — resident called about cancelled booking for 20 Dec. Advised refund would be processed. No case note on the 5-day timeline. (made up)",
+    draft: [
+      { text: "Thank you for following up on your community hall booking refund.", cite: null, low: false },
+      { text: "Our records show cancellations made at least 14 days before the booking date receive a full refund of the $50 deposit.", cite: ["pol-002", "p3"], low: false },
+      { text: "We do not have a policy page stating a specific processing timeline for refunds, so we are unable to confirm the five-day estimate from your earlier call. For the status of your refund, please contact the booking office directly.", cite: null, low: true }
+    ],
+    rationale: "Matched to the Community Hall booking refund rules. The 5-day timeline from the phone call is not in a policy page, so the draft does not confirm it and flags that line as low confidence. (made up)"
   }
 ];
 
@@ -144,5 +205,6 @@ const SNIPPETS = [
   { id: "snip-05", title: "Hall booking — advance window", text: "Residents may book the community hall up to 60 days in advance. (made up)", stale: false },
   { id: "snip-06", title: "Home repairs — what is covered", text: "The scheme covers leaking taps, faulty light switches and door hinges for registered households, up to twice per calendar year, free for households on the assistance register. (made up)", stale: false },
   { id: "snip-07", title: "Lost items — collection", text: "Items found at public facilities are held at the facility office for 30 days. Claimants must describe the item and show identification at collection. (made up)", stale: false },
-  { id: "snip-08", title: "Greeting and sign-off", text: "Thank you for writing to ServiceSG. / We hope this answers your question. Please write back if we can help further. (made up)", stale: false }
+  { id: "snip-08", title: "Greeting and sign-off", text: "Thank you for writing to ServiceSG. / We hope this answers your question. Please write back if we can help further. (made up)", stale: false },
+  { id: "snip-09", title: "Follow-up acknowledgement", text: "Thank you for following up on your earlier enquiry. We apologise for the delay. (made up)", stale: false }
 ];
