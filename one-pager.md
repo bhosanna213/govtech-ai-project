@@ -10,7 +10,9 @@ ServiceSG officers work a shared enquiry inbox during office hours, busiest in t
 
 Officers say the policy search takes longer than writing the reply, and enquiries with photos mean retyping what the image says (synthetic quotes in `day1-discover-define/opportunity.md`).
 
-Status quo today (from the same file): enquiries answered within SLA 90%; average first reply 1 day; enquiries with an image 1 in 5; minutes per policy search 10. An AI draft that cites the policy page it used could cut the search time out of every first reply.
+Status quo today (from the same file): enquiries answered within SLA 90%; average first reply 1 day; enquiries with an image 1 in 5; minutes per policy search 10.
+
+By those numbers the SLA is largely met, so the case does not rest on rescuing the SLA. It rests on officer time: every first reply carries about 10 minutes of policy search. At a synthetic volume of 300 enquiries a day (made up), that is roughly 50 officer-hours a day an AI draft with citations could recover. The volume figure is a placeholder to be replaced with a validated one before any build decision.
 
 ## Experience and trust
 
@@ -32,7 +34,9 @@ The agent is a drafting assistant for enquiry officers: it finds the right polic
 
 ## Roles and operating model
 
-An officer approves every reply before it goes out. Below the confidence threshold the AI produces no draft; the enquiry goes to an officer with the three closest policy pages. Other roles: to be filled in Day 2.
+An officer approves every reply before it goes out. Below the confidence threshold the AI produces no draft; the enquiry goes to an officer with the three closest policy pages.
+
+Accountability: a wrong reply belongs to its cause, not to whoever clicked Approve. Before the pilot, a one-page accountability note is agreed with the frontline director, tracing each error to its source — a stale policy page, a bad draft, or a rushed approval — each with its own owner and fix. If the note cannot be agreed, the pilot does not start. Other roles: to be filled in Day 2.
 
 ## Strategy and roadmap
 
@@ -40,7 +44,7 @@ Not started. To be filled in Day 2 (validate) and Day 3 (build).
 
 ## Metrics plan and stop line
 
-Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a light edit, fail below 5 in 10. Success signal: 8 in 10 drafts sent after a light edit by 20 Nov. Trust metric: accept-as-is rate, checked weekly, target 8 in 10 by end of pilot. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
+Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a light edit, fail below 5 in 10. Success signal: 8 in 10 drafts sent after a light edit by the end of the two-week pilot; the pilot start date is set once test sessions are scheduled (the earlier 20 Nov date was unrealistic and is withdrawn). Trust metric: accept-as-is rate, checked weekly, target 8 in 10 by end of pilot. Scale honesty: before the pilot, the fail line is translated into wrong-but-sent replies per week at the synthetic volume, for the sponsor to accept or reject. Stop line (kill switch): if officers do not trust a cited draft enough to edit it — they get stuck on the core action within 30 seconds or rewrite most of the draft — stop and rethink.
 
 ## Evals and gates
 
