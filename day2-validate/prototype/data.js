@@ -62,10 +62,23 @@ const ESCALATION_LIST = [
   "Vulnerable-resident flags"
 ];
 
+// Fixed list of 6 policy topics (made up). Each enquiry gets one topic.
+// "Accounts and payments" has no enquiries — tests the zero-count filter.
+const TOPICS = [
+  "Senior services",
+  "Facilities booking",
+  "Home repairs",
+  "Lost and found",
+  "Complaints and feedback",
+  "Accounts and payments"
+];
+
 const ENQUIRIES = [
   {
     id: "enq-01",
-    from: "Resident (synthetic)",
+    from: "Lim W. (synthetic)",
+    topic: "Senior services",
+    receivedDate: "2026-11-12",
     subject: "Senior Activity Pass for my mother",
     body: "Hello, my mother turns 61 next month. Can she get the Senior Activity Pass, how much is it, and how long does it take?",
     confidence: "High (made up)",
@@ -80,7 +93,9 @@ const ENQUIRIES = [
   },
   {
     id: "enq-02",
-    from: "Resident (synthetic)",
+    from: "Tan S. (synthetic)",
+    topic: "Facilities booking",
+    receivedDate: "2026-11-14",
     subject: "Refund for cancelled hall booking",
     body: "I booked the community hall for 20 December but need to cancel. Will I get my deposit back?",
     confidence: "High (made up)",
@@ -95,7 +110,9 @@ const ENQUIRIES = [
   },
   {
     id: "enq-03",
-    from: "Resident (synthetic)",
+    from: "Ng R. (synthetic)",
+    topic: "Home repairs",
+    receivedDate: "2026-11-10",
     subject: "Tap leaking again, second time this year",
     body: "Your contractor fixed my kitchen tap in March but it is leaking again. Can someone come, and will I be charged this time?",
     confidence: "High (made up)",
@@ -110,7 +127,9 @@ const ENQUIRIES = [
   },
   {
     id: "enq-04",
-    from: "Resident (synthetic)",
+    from: "Ong M. (synthetic)",
+    topic: null,
+    receivedDate: "2026-11-15",
     subject: "Photo of a letter I received",
     body: "I received this letter about my application but I do not understand it. Please see the attached photo and tell me what I need to do.",
     confidence: "Cannot read attachment (made up)",
@@ -122,7 +141,9 @@ const ENQUIRIES = [
   },
   {
     id: "enq-06",
-    from: "Resident (synthetic)",
+    from: "Chan K. (synthetic)",
+    topic: "Senior services",
+    receivedDate: "2026-11-16",
     subject: "Activity pass for my father, aged 72",
     body: "My father is 72. How much does it cost him to renew his Senior Activity Pass this year?",
     confidence: "High (made up)",
@@ -141,7 +162,9 @@ const ENQUIRIES = [
   },
   {
     id: "enq-05",
-    from: "Resident (synthetic)",
+    from: "Loh J. (synthetic)",
+    topic: "Lost and found",
+    receivedDate: "2026-11-13",
     subject: "Left my bag at the sports hall",
     body: "I think I left a blue bag at the sports hall last Saturday. Is it there, and what do I need to collect it? Also, can I transfer my gym pass to my brother?",
     confidence: "Low, 45-60% (made up)",
@@ -158,7 +181,9 @@ const ENQUIRIES = [
   // says these go to a human lead. The AI produces no draft.
   {
     id: "enq-07",
-    from: "Resident (synthetic)",
+    from: "Yeo P. (synthetic)",
+    topic: "Complaints and feedback",
+    receivedDate: "2026-11-17",
     subject: "Complaint about counter staff",
     body: "I visited the community centre yesterday to ask about my Senior Activity Pass. The officer at counter 3 was very rude and refused to help me. I want to make a formal complaint.",
     confidence: "N/A — escalation (made up)",
@@ -174,7 +199,9 @@ const ENQUIRIES = [
   // does NOT confirm the 5-day timeline, because no policy page states it.
   {
     id: "enq-08",
-    from: "Resident (synthetic)",
+    from: "Tan S. (synthetic)",
+    topic: "Facilities booking",
+    receivedDate: "2026-11-18",
     subject: "Still waiting for my hall booking refund",
     body: "I called last week about my community hall booking refund and your colleague said it would take 5 working days. It has been 7 days and I still have not received it. Where is my refund?",
     confidence: "High (made up)",

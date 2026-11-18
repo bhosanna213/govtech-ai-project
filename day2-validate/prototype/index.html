@@ -49,6 +49,13 @@
   .badge.high { background: var(--ok-soft); color: var(--ok); }
   .badge.low { background: var(--warn-soft); color: var(--warn); }
   .badge.img { background: var(--brass-soft); color: var(--brass); }
+  /* Filter bar */
+  .filter-bar { padding: 8px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .filter-bar select { width: 100%; font-family: var(--sans); font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); cursor: pointer; }
+  .filter-bar select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .filter-count { font-size: 11.5px; color: var(--muted); padding: 2px 22px; margin: 4px 0 0; }
+  .filter-empty { font-size: 13px; color: var(--muted); padding: 20px 22px; text-align: center; }
+  .topic-tag { display: inline-block; font-size: 10.5px; color: var(--accent-deep); background: var(--accent-soft); border: 1px solid rgba(31,111,84,.12); padding: 1px 8px; border-radius: 999px; margin-top: 4px; }
   /* Main panes */
   .main { flex: 1; display: flex; gap: 20px; padding: 24px 28px; align-items: flex-start; flex-wrap: wrap; }
   .pane { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow-rest); }
@@ -133,12 +140,35 @@ const SESSION_MINUTES = 10;         // mild time pressure for five drafted enqui
 let sessionStart = null;            // set when the tester starts the clock
 let mode = "draft";                 // "draft" (AI draft with citations) or "snippet" (canned snippets, no AI)
 let snippetText = {};               // enquiry id -> reply composed in snippet mode
+let filterTopic = "all";
+let filterAuthor = "all";
+let filterDate = "all";
+const PROTO_TODAY = new Date(Math.max(...ENQUIRIES.filter(e => e.receivedDate).map(e => new Date(e.receivedDate + "T00:00:00").getTime())));
 const track = {};                   // per enquiry, per mode
 for (const e of ENQUIRIES) track[e.id] = {
   draft:   { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 },
   snippet: { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 }
 };
 function tr(id) { return track[id][mode]; }
+
+function getFilteredEnquiries() {
+  return ENQUIRIES.filter(function(enq) {
+    if (filterTopic !== "all") {
+      if (filterTopic === "__others") { if (enq.topic) return false; }
+      else { if (enq.topic !== filterTopic) return false; }
+    }
+    if (filterDate !== "all" && enq.receivedDate) {
+      const enqDate = new Date(enq.receivedDate + "T00:00:00");
+      const daysAgo = Math.floor((PROTO_TODAY - enqDate) / (1000 * 60 * 60 * 24));
+      if (filterDate === "today" && daysAgo !== 0) return false;
+      if (filterDate === "3days" && daysAgo > 2) return false;
+      if (filterDate === "7days" && daysAgo > 6) return false;
+      if (filterDate === "older" && daysAgo <= 6) return false;
+    }
+    if (filterAuthor !== "all" && enq.from !== filterAuthor) return false;
+    return true;
+  });
+}
 
 function touchOpen(id) {
   if (sessionStart && track[id][mode].firstOpen === null) track[id][mode].firstOpen = Date.now();
@@ -197,7 +227,53 @@ function formatReviewDate(iso) {
 function renderInbox() {
   const nav = document.getElementById("inbox");
   nav.innerHTML = "<h2>Shared inbox (synthetic)</h2>";
-  for (const enq of ENQUIRIES) {
+  const filtered = getFilteredEnquiries();
+  const topicCounts = {};
+  for (const t of TOPICS) topicCounts[t] = 0;
+  topicCounts["__others"] = 0;
+  for (const e of ENQUIRIES) {
+    if (e.topic && TOPICS.includes(e.topic)) topicCounts[e.topic]++;
+    else topicCounts["__others"]++;
+  }
+  const authors = [...new Set(ENQUIRIES.map(e => e.from))].sort();
+  const dateCounts = { today: 0, "3days": 0, "7days": 0, older: 0 };
+  for (const e of ENQUIRIES) {
+    if (!e.receivedDate) continue;
+    const d = Math.floor((PROTO_TODAY - new Date(e.receivedDate + "T00:00:00")) / (1000*60*60*24));
+    if (d === 0) dateCounts.today++;
+    if (d <= 2) dateCounts["3days"]++;
+    if (d <= 6) dateCounts["7days"]++;
+    if (d > 6) dateCounts.older++;
+  }
+  const bar = document.createElement("div");
+  bar.className = "filter-bar";
+  let topicHtml = '<select onchange="filterTopic=this.value;render()">';
+  topicHtml += '<option value="all"' + (filterTopic==="all"?" selected":"") + '>All topics (' + ENQUIRIES.length + ')</option>';
+  for (const t of TOPICS) topicHtml += '<option value="' + t + '"' + (filterTopic===t?" selected":"") + '>' + t + ' (' + topicCounts[t] + ')</option>';
+  topicHtml += '<option value="__others"' + (filterTopic==="__others"?" selected":"") + '>Others (' + topicCounts["__others"] + ')</option></select>';
+  let dateHtml = '<select onchange="filterDate=this.value;render()">';
+  dateHtml += '<option value="all"' + (filterDate==="all"?" selected":"") + '>All dates</option>';
+  dateHtml += '<option value="today"' + (filterDate==="today"?" selected":"") + '>Today (' + dateCounts.today + ')</option>';
+  dateHtml += '<option value="3days"' + (filterDate==="3days"?" selected":"") + '>Last 3 days (' + dateCounts["3days"] + ')</option>';
+  dateHtml += '<option value="7days"' + (filterDate==="7days"?" selected":"") + '>Last 7 days (' + dateCounts["7days"] + ')</option>';
+  dateHtml += '<option value="older"' + (filterDate==="older"?" selected":"") + '>Older (' + dateCounts.older + ')</option></select>';
+  let authorHtml = '<select onchange="filterAuthor=this.value;render()">';
+  authorHtml += '<option value="all"' + (filterAuthor==="all"?" selected":"") + '>All authors (' + ENQUIRIES.length + ')</option>';
+  for (const a of authors) {
+    const c = ENQUIRIES.filter(e => e.from === a).length;
+    authorHtml += '<option value="' + a + '"' + (filterAuthor===a?" selected":"") + '>' + a.replace(" (synthetic)","") + ' (' + c + ')</option>';
+  }
+  authorHtml += '</select>';
+  bar.innerHTML = topicHtml + dateHtml + authorHtml;
+  nav.appendChild(bar);
+  if (filtered.length === 0) {
+    nav.insertAdjacentHTML("beforeend", '<p class="filter-empty">No enquiries match these filters.</p>');
+    return;
+  }
+  if (filterTopic !== "all" || filterDate !== "all" || filterAuthor !== "all") {
+    nav.insertAdjacentHTML("beforeend", '<p class="filter-count">Showing ' + filtered.length + ' of ' + ENQUIRIES.length + '</p>');
+  }
+  for (const enq of filtered) {
     const div = document.createElement("div");
     div.className = "enq" + (enq.id === activeId ? " active" : "");
     let badge;
@@ -206,8 +282,11 @@ function renderInbox() {
     else if (enq.followUp) badge = '<span class="badge img">follow-up</span>';
     else if (enq.lowConfidence) badge = '<span class="badge low">low confidence</span>';
     else badge = '<span class="badge high">draft ready</span>';
+    const topicLabel = enq.topic || "Others";
+    const dateLabel = enq.receivedDate ? formatReviewDate(enq.receivedDate) : "";
     div.innerHTML = '<div class="subj">' + enq.subject + '</div>' +
-                    '<div class="from">' + enq.from + '</div>' + badge +
+                    '<div class="from">' + enq.from + (dateLabel ? ' &middot; ' + dateLabel : '') + '</div>' +
+                    '<span class="topic-tag">' + topicLabel + '</span> ' + badge +
                     (isApproved(enq.id) ? ' <span class="badge high">approved</span>' : '');
     div.onclick = () => { activeId = enq.id; editing = false; shownCite = null; showResults = false; touchOpen(enq.id); render(); };
     nav.appendChild(div);
