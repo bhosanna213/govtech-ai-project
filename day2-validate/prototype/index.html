@@ -102,6 +102,7 @@
   <h1>ServiceSG enquiry inbox — draft reply mockup</h1>
   <span class="tag">Prototype · all data synthetic (made up)</span>
   <span class="tag">No AI called · drafts are scripted</span>
+  <span class="clock" id="modeswitch"></span>
   <span class="clock" id="clock"></span>
 </header>
 
@@ -117,23 +118,40 @@
 <script>
 let activeId = ENQUIRIES[0].id;
 let editing = false;
-let approved = {};          // enquiry id -> true once approved
-let editedText = {};        // enquiry id -> officer's edited draft text
+let approved = {};          // draft mode: enquiry id -> true once approved
+let editedText = {};        // draft mode: enquiry id -> officer's edited draft text
+let snippetApproved = {};   // snippet mode: enquiry id -> true once approved
 let shownCite = null;       // [pageId, passageId] currently highlighted
 let showResults = false;
 
 // Test measurement (validation-brief.md). All timings are per enquiry.
 const SESSION_MINUTES = 10;         // mild time pressure for five drafted enquiries
 let sessionStart = null;            // set when the tester starts the clock
-const track = {};                   // enquiry id -> {firstOpen, decidedAt, citesOpened, editSessions}
-for (const e of ENQUIRIES) track[e.id] = { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 };
+let mode = "draft";                 // "draft" (AI draft with citations) or "snippet" (canned snippets, no AI)
+let snippetText = {};               // enquiry id -> reply composed in snippet mode
+const track = {};                   // per enquiry, per mode
+for (const e of ENQUIRIES) track[e.id] = {
+  draft:   { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 },
+  snippet: { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 }
+};
+function tr(id) { return track[id][mode]; }
 
 function touchOpen(id) {
-  if (sessionStart && track[id].firstOpen === null) track[id].firstOpen = Date.now();
+  if (sessionStart && track[id][mode].firstOpen === null) track[id][mode].firstOpen = Date.now();
 }
+
+function isApproved(id) { return mode === "draft" ? approved[id] : snippetApproved[id]; }
 
 function originalDraftText(enq) {
   return enq.draft.map(l => l.text).join("\n\n");
+}
+
+// The stale snippet's wrong claim, if it survives into an approved snippet reply.
+function snippetErrorSurvived(enq) {
+  if (!enq.draft || !enq.draft.some(l => l.plantedError)) return null;
+  if (!snippetApproved[enq.id]) return null;
+  const t = (snippetText[enq.id] || "").toLowerCase();
+  return t.includes("fee") && t.includes("$5");
 }
 
 // Share of words changed between the original draft and the approved text.
@@ -167,10 +185,22 @@ function renderInbox() {
     else badge = '<span class="badge high">draft ready</span>';
     div.innerHTML = '<div class="subj">' + enq.subject + '</div>' +
                     '<div class="from">' + enq.from + '</div>' + badge +
-                    (approved[enq.id] ? ' <span class="badge high">approved</span>' : '');
+                    (isApproved(enq.id) ? ' <span class="badge high">approved</span>' : '');
     div.onclick = () => { activeId = enq.id; editing = false; shownCite = null; showResults = false; touchOpen(enq.id); render(); };
     nav.appendChild(div);
   }
+}
+
+function renderModeSwitch() {
+  const el = document.getElementById("modeswitch");
+  el.innerHTML = 'Mode: <button ' + (mode === "draft" ? 'class="primary"' : '') + ' onclick="setMode(\'draft\')">AI draft</button>' +
+                 '<button ' + (mode === "snippet" ? 'class="primary"' : '') + ' onclick="setMode(\'snippet\')">Snippets</button>';
+}
+function setMode(m) {
+  mode = m;
+  editing = false; shownCite = null; showResults = false;
+  touchOpen(activeId);
+  render();
 }
 
 function renderClock() {
@@ -197,28 +227,45 @@ function finishSession() { showResults = true; render(); }
 
 function renderResults(main) {
   const rows = [];
-  let decided = 0, lightEdits = 0, rewrites = 0, errorCaught = null;
+  let decided = 0, lightEdits = 0, rewrites = 0, blindApprovals = 0, errorCaught = null;
+  let snipDecided = 0, snipTimes = [], draftTimes = [], snipErrorCaught = null;
   for (const enq of ENQUIRIES) {
     if (!enq.draft) continue;
-    const t = track[enq.id];
-    const secs = t.firstOpen && t.decidedAt ? Math.round((t.decidedAt - t.firstOpen) / 1000) : null;
+    const td = track[enq.id].draft, ts = track[enq.id].snippet;
+    const dSecs = td.firstOpen && td.decidedAt ? Math.round((td.decidedAt - td.firstOpen) / 1000) : null;
+    const sSecs = ts.firstOpen && ts.decidedAt ? Math.round((ts.decidedAt - ts.firstOpen) / 1000) : null;
     const share = changedShare(enq);
     const planted = plantedErrorSurvived(enq);
+    const snipPlanted = snippetErrorSurvived(enq);
     let outcome = "not decided";
     if (approved[enq.id]) {
       decided++;
-      if (share === 0) outcome = "approved as-is";
+      if (dSecs !== null) draftTimes.push(dSecs);
+      if (td.citesOpened === 0) { blindApprovals++; outcome = "approved without reading (no citations opened)"; }
+      else if (share === 0) outcome = "approved as-is";
       else if (share <= 0.6) { outcome = "light edit (" + Math.round(share * 100) + "% changed)"; lightEdits++; }
       else { outcome = "rewritten (" + Math.round(share * 100) + "% changed)"; rewrites++; }
     }
+    if (snippetApproved[enq.id]) { snipDecided++; if (sSecs !== null) snipTimes.push(sSecs); }
     if (planted !== null && approved[enq.id]) errorCaught = !planted;
-    rows.push("<tr><td>" + enq.subject + "</td><td>" + (secs === null ? "—" : secs + "s") + "</td><td>" +
-      t.citesOpened + "</td><td>" + outcome +
-      (planted !== null ? (planted ? " · <strong>planted error approved</strong>" : " · planted error caught") : "") + "</td></tr>");
+    if (snipPlanted !== null) snipErrorCaught = !snipPlanted;
+    rows.push("<tr><td>" + enq.subject + "</td><td>" + (dSecs === null ? "—" : dSecs + "s") + "</td><td>" +
+      td.citesOpened + "</td><td>" + outcome +
+      (planted !== null && approved[enq.id] ? (planted ? " · <strong>planted error approved</strong>" : " · planted error caught") : "") +
+      "</td><td>" + (sSecs === null ? "—" : sSecs + "s") +
+      (snipPlanted !== null ? (snipPlanted ? " · <strong>stale snippet approved</strong>" : " · stale snippet caught") : "") + "</td></tr>");
   }
   const kills = [];
   if (errorCaught === false) kills.push("The planted stale-fee error was approved and would have reached a resident.");
   if (rewrites > 0) kills.push(rewrites + " draft(s) were rewritten (more than 60% of words changed).");
+  if (blindApprovals > 0) kills.push(blindApprovals + " draft(s) approved without opening a single citation — rubber-stamping.");
+  const avg = a => a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : null;
+  const headToHead = (draftTimes.length && snipTimes.length)
+    ? '<p class="rationale">Head-to-head: AI draft averaged ' + avg(draftTimes) + 's to a decision over ' + draftTimes.length +
+      ' enquiries; snippets averaged ' + avg(snipTimes) + 's over ' + snipTimes.length + '. Planted error — draft mode: ' +
+      (errorCaught === null ? "not decided" : errorCaught ? "caught" : "missed") + '; snippet mode: ' +
+      (snipErrorCaught === null ? "not decided" : snipErrorCaught ? "caught" : "missed") + '.</p>'
+    : '<p class="rationale">Head-to-head: answer the same enquiries in both modes (switch in the header) to compare times and error-catching.</p>';
   const verdict = kills.length
     ? '<div class="verdict fail">Kill-switch signal: ' + kills.join(" ") + '</div>'
     : (decided === 0 ? '<div class="verdict fail">No drafts decided yet — run the session first.</div>'
@@ -227,8 +274,8 @@ function renderResults(main) {
   const pane = document.createElement("section");
   pane.className = "pane draft-pane";
   pane.style.flex = "1 1 100%";
-  pane.innerHTML = "<h3>Test results (this session, synthetic)</h3>" + verdict +
-    '<table class="results-table"><tr><th>Enquiry</th><th>Open → decision</th><th>Citations opened</th><th>Outcome</th></tr>' +
+  pane.innerHTML = "<h3>Test results (this session, synthetic)</h3>" + verdict + headToHead +
+    '<table class="results-table"><tr><th>Enquiry</th><th>Draft: open → decision</th><th>Citations opened</th><th>Draft outcome</th><th>Snippets: open → decision</th></tr>' +
     rows.join("") + "</table>" +
     '<p class="rationale">Copy these results into day2-validate/validation-brief.md under Results. Reload the page to reset the session.</p>';
   main.appendChild(pane);
@@ -247,6 +294,48 @@ function renderMain() {
     (enq.hasImage ? '<div class="photo-placeholder">📷 Attached photo (synthetic placeholder)<br>The current tools cannot read this image.</div>' : "") +
     '<p class="rationale">Confidence: ' + enq.confidence + "</p>";
   main.appendChild(ep);
+
+  // Snippet mode: no AI draft — compose from canned snippets.
+  if (mode === "snippet") {
+    const sp = document.createElement("section");
+    sp.className = "pane draft-pane";
+    if (enq.draft === null) {
+      sp.innerHTML = "<h3>Reply (snippet mode)</h3><p>This enquiry depends on an image the current tools cannot read. Same handoff in both modes: the officer writes the reply.</p>";
+      main.appendChild(sp);
+    } else if (snippetApproved[enq.id]) {
+      sp.innerHTML = "<h3>Reply (snippet mode)</h3>" +
+        '<div class="approved-note">✓ Approved and queued for sending. (mockup — nothing is sent)</div>' +
+        '<div class="line" style="white-space:pre-wrap; margin-top:10px;">' + (snippetText[enq.id] || "") + "</div>";
+      main.appendChild(sp);
+    } else {
+      sp.innerHTML = "<h3>Reply (snippet mode)</h3><p class=\"empty-hint\">No AI draft here. Compose the reply yourself: click snippets on the right to insert them, edit freely, then approve.</p>";
+      const ta = document.createElement("textarea");
+      ta.className = "draft-editor";
+      ta.id = "snipEditor";
+      ta.value = snippetText[enq.id] || "";
+      ta.oninput = () => { snippetText[enq.id] = ta.value; };
+      sp.appendChild(ta);
+      const act = document.createElement("div");
+      act.className = "actions";
+      act.innerHTML = '<button class="primary" onclick="approveSnippet()">Approve</button>';
+      sp.appendChild(act);
+      main.appendChild(sp);
+    }
+    const cp = document.createElement("section");
+    cp.className = "pane cite-pane";
+    cp.innerHTML = "<h3>Snippet folder (synthetic)</h3>" +
+      '<p class="empty-hint">Canned replies, as a text-expander would offer. Click one to insert it. One of these is out of date — just like real snippet folders.</p>';
+    for (const s of SNIPPETS) {
+      const div = document.createElement("div");
+      div.className = "passage";
+      div.style.cursor = "pointer";
+      div.innerHTML = "<strong>" + s.title + "</strong><br>" + s.text;
+      div.onclick = () => { insertSnippet(enq.id, s); };
+      cp.appendChild(div);
+    }
+    main.appendChild(cp);
+    return;
+  }
 
   // Draft pane
   const dp = document.createElement("section");
@@ -290,7 +379,7 @@ function renderMain() {
       if (line.cite) {
         const page = POLICY_PAGES[line.cite[0]];
         chips += '<span class="cite-chip">cites: ' + page.title.replace(" (made up)", "") + "</span>";
-        div.onclick = () => { shownCite = line.cite; track[enq.id].citesOpened++; render(); };
+        div.onclick = () => { shownCite = line.cite; track[enq.id].draft.citesOpened++; render(); };
         if (shownCite && shownCite[0] === line.cite[0] && shownCite[1] === line.cite[1]) div.classList.add("showing");
       }
       if (line.low) chips += '<span class="low-chip">low confidence</span>';
@@ -346,7 +435,7 @@ function renderMain() {
 }
 
 function markDecided() {
-  if (sessionStart && track[activeId].decidedAt === null) track[activeId].decidedAt = Date.now();
+  if (sessionStart && track[activeId][mode].decidedAt === null) track[activeId][mode].decidedAt = Date.now();
 }
 function approve() {
   approved[activeId] = true;
@@ -354,7 +443,17 @@ function approve() {
   editing = false;
   render();
 }
-function startEdit() { editing = true; track[activeId].editSessions++; render(); }
+function approveSnippet() {
+  snippetText[activeId] = document.getElementById("snipEditor").value;
+  snippetApproved[activeId] = true;
+  markDecided();
+  render();
+}
+function insertSnippet(id, s) {
+  snippetText[id] = (snippetText[id] ? snippetText[id] + "\n\n" : "") + s.text.replace(" (made up)", "");
+  render();
+}
+function startEdit() { editing = true; track[activeId].draft.editSessions++; render(); }
 function saveEdit() {
   editedText[activeId] = document.getElementById("editor").value;
   editing = false;
@@ -372,7 +471,7 @@ function restoreOriginal() {
   editing = false;
   render();
 }
-function render() { renderInbox(); renderClock(); renderMain(); }
+function render() { renderInbox(); renderModeSwitch(); renderClock(); renderMain(); }
 touchOpen(activeId);
 render();
 </script>
