@@ -128,7 +128,7 @@ The session clock runs for 10 minutes to create mild time pressure.
 
 2. **Measurement gap for lookup-failure approvals.** The failure flow has no citations to open. If an officer approves a failure-state reply, the results table shows "0 citations opened" and may fire the rubber-stamping kill switch even though there were no citations to open.
 
-3. **State bleeds across modes.** `editedText` and `officerText` persist when the officer switches between AI draft and Snippet mode. Approvals are mode-specific (`approved` vs `snippetApproved`), but text is shared. A tester expecting a clean slate between modes will see leftover edits.
+3. ~~**State bleeds across modes.**~~ Fixed. `setMode()` now clears `editedText`, `officerText` and `snippetText` on every switch.
 
 4. **Hardcoded dates.** `PROTO_TODAY` is computed from the data (18 Nov 2026). The date filter works relative to that date, not the real date. Adding a new enquiry without updating dates will make the "Today" filter miss it.
 
@@ -178,7 +178,7 @@ The session clock runs for 10 minutes to create mild time pressure.
 4. **Resolve the planted-error/lookup-failure conflict.** Either make the forced failure toggleable per enquiry, or add a separate planted-error enquiry that is not about fees.
 5. **Add automated tests.** There is no test file. At minimum, test the measurement functions (`changedShare`, `plantedErrorSurvived`, `isFeeEnquiry`, `isStale`) and the kill-switch logic.
 6. **Fix the measurement gap.** Lookup-failure approvals should not trigger the rubber-stamping kill switch. Track "no citations available" separately from "citations available but not opened."
-7. **Reset state between modes.** Either warn the tester that text carries over, or clear `editedText` and `officerText` on mode switch.
+7. ~~**Reset state between modes.**~~ Done. `setMode()` clears `editedText`, `officerText` and `snippetText`.
 
 ### What to build for a pilot
 
