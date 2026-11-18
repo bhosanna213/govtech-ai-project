@@ -85,6 +85,16 @@
   .closest li { margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
   .empty-hint { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 18px; }
+  /* Session clock and results */
+  .clock { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); border: 1px solid var(--line); background: var(--card); padding: 5px 14px; border-radius: 999px; display: flex; align-items: center; gap: 12px; }
+  .clock strong { color: var(--ink); font-weight: 600; }
+  .clock button { padding: 4px 14px; font-size: 12.5px; }
+  .results-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+  .results-table th, .results-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .results-table th { font-weight: 600; color: var(--muted); font-size: 12px; }
+  .verdict { border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-size: 14px; }
+  .verdict.pass { background: var(--ok-soft); color: var(--ok); border: 1px solid rgba(30,107,58,.15); }
+  .verdict.fail { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(138,90,0,.2); }
 </style>
 </head>
 <body>
@@ -92,6 +102,7 @@
   <h1>ServiceSG enquiry inbox — draft reply mockup</h1>
   <span class="tag">Prototype · all data synthetic (made up)</span>
   <span class="tag">No AI called · drafts are scripted</span>
+  <span class="clock" id="clock"></span>
 </header>
 
 <div class="wrap">
@@ -109,9 +120,39 @@ let editing = false;
 let approved = {};          // enquiry id -> true once approved
 let editedText = {};        // enquiry id -> officer's edited draft text
 let shownCite = null;       // [pageId, passageId] currently highlighted
+let showResults = false;
+
+// Test measurement (validation-brief.md). All timings are per enquiry.
+const SESSION_MINUTES = 10;         // mild time pressure for five drafted enquiries
+let sessionStart = null;            // set when the tester starts the clock
+const track = {};                   // enquiry id -> {firstOpen, decidedAt, citesOpened, editSessions}
+for (const e of ENQUIRIES) track[e.id] = { firstOpen: null, decidedAt: null, citesOpened: 0, editSessions: 0 };
+
+function touchOpen(id) {
+  if (sessionStart && track[id].firstOpen === null) track[id].firstOpen = Date.now();
+}
 
 function originalDraftText(enq) {
   return enq.draft.map(l => l.text).join("\n\n");
+}
+
+// Share of words changed between the original draft and the approved text.
+function changedShare(enq) {
+  if (!editedText[enq.id]) return 0;
+  const a = originalDraftText(enq).toLowerCase().split(/\s+/).filter(Boolean);
+  const b = editedText[enq.id].toLowerCase().split(/\s+/).filter(Boolean);
+  const counts = {};
+  for (const w of a) counts[w] = (counts[w] || 0) + 1;
+  let kept = 0;
+  for (const w of b) if (counts[w] > 0) { counts[w]--; kept++; }
+  return 1 - kept / Math.max(a.length, 1);
+}
+
+// The planted error survives if its distinctive wrong claim is still present.
+function plantedErrorSurvived(enq) {
+  if (!enq.draft || !enq.draft.some(l => l.plantedError)) return null;
+  const finalText = (editedText[enq.id] || originalDraftText(enq)).toLowerCase();
+  return finalText.includes("fee") && finalText.includes("$5");
 }
 
 function renderInbox() {
@@ -127,15 +168,77 @@ function renderInbox() {
     div.innerHTML = '<div class="subj">' + enq.subject + '</div>' +
                     '<div class="from">' + enq.from + '</div>' + badge +
                     (approved[enq.id] ? ' <span class="badge high">approved</span>' : '');
-    div.onclick = () => { activeId = enq.id; editing = false; shownCite = null; render(); };
+    div.onclick = () => { activeId = enq.id; editing = false; shownCite = null; showResults = false; touchOpen(enq.id); render(); };
     nav.appendChild(div);
   }
 }
 
+function renderClock() {
+  const el = document.getElementById("clock");
+  if (!sessionStart) {
+    el.innerHTML = '<button class="primary" onclick="startSession()">Start test session</button>';
+    return;
+  }
+  const left = SESSION_MINUTES * 60 - Math.floor((Date.now() - sessionStart) / 1000);
+  const m = Math.max(0, Math.floor(left / 60)), s = Math.max(0, left % 60);
+  el.innerHTML = 'Session: <strong>' + m + ":" + String(s).padStart(2, "0") + '</strong>' +
+    (left <= 0 ? ' <span style="color:var(--warn)">time up</span>' : '') +
+    ' <button onclick="finishSession()">Finish test</button>';
+}
+
+function startSession() {
+  sessionStart = Date.now();
+  touchOpen(activeId);
+  render();
+  if (!window.__clockTimer) window.__clockTimer = setInterval(renderClock, 1000);
+}
+
+function finishSession() { showResults = true; render(); }
+
+function renderResults(main) {
+  const rows = [];
+  let decided = 0, lightEdits = 0, rewrites = 0, errorCaught = null;
+  for (const enq of ENQUIRIES) {
+    if (!enq.draft) continue;
+    const t = track[enq.id];
+    const secs = t.firstOpen && t.decidedAt ? Math.round((t.decidedAt - t.firstOpen) / 1000) : null;
+    const share = changedShare(enq);
+    const planted = plantedErrorSurvived(enq);
+    let outcome = "not decided";
+    if (approved[enq.id]) {
+      decided++;
+      if (share === 0) outcome = "approved as-is";
+      else if (share <= 0.6) { outcome = "light edit (" + Math.round(share * 100) + "% changed)"; lightEdits++; }
+      else { outcome = "rewritten (" + Math.round(share * 100) + "% changed)"; rewrites++; }
+    }
+    if (planted !== null && approved[enq.id]) errorCaught = !planted;
+    rows.push("<tr><td>" + enq.subject + "</td><td>" + (secs === null ? "—" : secs + "s") + "</td><td>" +
+      t.citesOpened + "</td><td>" + outcome +
+      (planted !== null ? (planted ? " · <strong>planted error approved</strong>" : " · planted error caught") : "") + "</td></tr>");
+  }
+  const kills = [];
+  if (errorCaught === false) kills.push("The planted stale-fee error was approved and would have reached a resident.");
+  if (rewrites > 0) kills.push(rewrites + " draft(s) were rewritten (more than 60% of words changed).");
+  const verdict = kills.length
+    ? '<div class="verdict fail">Kill-switch signal: ' + kills.join(" ") + '</div>'
+    : (decided === 0 ? '<div class="verdict fail">No drafts decided yet — run the session first.</div>'
+    : '<div class="verdict pass">No kill-switch signal. ' + decided + ' decided, ' + lightEdits + ' after a light edit' +
+      (errorCaught === true ? ', planted error caught' : errorCaught === null ? ', planted-error enquiry not decided' : '') + '.</div>');
+  const pane = document.createElement("section");
+  pane.className = "pane draft-pane";
+  pane.style.flex = "1 1 100%";
+  pane.innerHTML = "<h3>Test results (this session, synthetic)</h3>" + verdict +
+    '<table class="results-table"><tr><th>Enquiry</th><th>Open → decision</th><th>Citations opened</th><th>Outcome</th></tr>' +
+    rows.join("") + "</table>" +
+    '<p class="rationale">Copy these results into day2-validate/validation-brief.md under Results. Reload the page to reset the session.</p>';
+  main.appendChild(pane);
+}
+
 function renderMain() {
-  const enq = ENQUIRIES.find(e => e.id === activeId);
   const main = document.getElementById("main");
   main.innerHTML = "";
+  if (showResults) { renderResults(main); return; }
+  const enq = ENQUIRIES.find(e => e.id === activeId);
 
   // Enquiry pane
   const ep = document.createElement("section");
@@ -187,7 +290,7 @@ function renderMain() {
       if (line.cite) {
         const page = POLICY_PAGES[line.cite[0]];
         chips += '<span class="cite-chip">cites: ' + page.title.replace(" (made up)", "") + "</span>";
-        div.onclick = () => { shownCite = line.cite; render(); };
+        div.onclick = () => { shownCite = line.cite; track[enq.id].citesOpened++; render(); };
         if (shownCite && shownCite[0] === line.cite[0] && shownCite[1] === line.cite[1]) div.classList.add("showing");
       }
       if (line.low) chips += '<span class="low-chip">low confidence</span>';
@@ -242,12 +345,16 @@ function renderMain() {
   main.appendChild(cp);
 }
 
+function markDecided() {
+  if (sessionStart && track[activeId].decidedAt === null) track[activeId].decidedAt = Date.now();
+}
 function approve() {
   approved[activeId] = true;
+  markDecided();
   editing = false;
   render();
 }
-function startEdit() { editing = true; render(); }
+function startEdit() { editing = true; track[activeId].editSessions++; render(); }
 function saveEdit() {
   editedText[activeId] = document.getElementById("editor").value;
   editing = false;
@@ -256,6 +363,7 @@ function saveEdit() {
 function saveAndApprove() {
   editedText[activeId] = document.getElementById("editor").value;
   approved[activeId] = true;
+  markDecided();
   editing = false;
   render();
 }
@@ -264,7 +372,8 @@ function restoreOriginal() {
   editing = false;
   render();
 }
-function render() { renderInbox(); renderMain(); }
+function render() { renderInbox(); renderClock(); renderMain(); }
+touchOpen(activeId);
 render();
 </script>
 </body>
