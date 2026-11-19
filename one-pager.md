@@ -36,7 +36,29 @@ The agent is a drafting assistant for enquiry officers: it finds the right polic
 
 An officer approves every reply before it goes out. Below the confidence threshold the AI produces no draft; the enquiry goes to an officer with the three closest policy pages.
 
-Accountability: a wrong reply belongs to its cause, not to whoever clicked Approve. Before the pilot, a one-page accountability note is agreed with the frontline director, tracing each error to its source — a stale policy page, a bad draft, or a rushed approval — each with its own owner and fix. If the note cannot be agreed, the pilot does not start. Other roles: to be filled in Day 2.
+Six roles govern the agent (roles, not people — one person may hold more than one):
+
+| Role | What they do |
+|---|---|
+| Enquiry officer | Reviews drafts, opens citations, edits and approves replies |
+| Supervisor | Oversees officers, gets notified on kill switches, can pause the agent manually |
+| Policy team lead | Owns policy pages, sets the confidence threshold (0.70), maintains the escalation list |
+| Frontline director | Sets kill-switch thresholds, session clock, escalation list sign-off |
+| Engineering lead | Builds the system, chooses model and retrieval pipeline |
+| Executive sponsor | Approves pilot, accountability table and go-live |
+
+Decision rights summary (full table in `day3-build/operating-model.md`):
+
+| Decision | Who decides |
+|---|---|
+| Scope and permissions | Frontline director |
+| Vendor and model | Engineering lead (model), Policy team lead (threshold) |
+| Go-live and retire | Executive sponsor |
+| Incident | Supervisor (immediate), Frontline director (threshold changes) |
+
+Accountability: a wrong reply belongs to its cause, not to whoever clicked Approve. Decided: stale page → policy team lead, bad draft → engineering lead, rushed approval → the approving officer's supervisor reviews the session log. The accountability table is agreed with the executive sponsor before the pilot.
+
+Incident response: if a wrong answer reaches a resident, the supervisor pauses the agent manually (within 15 minutes), pulls the session log, and the officer sends a corrected reply the same day. The frontline director tells the executive sponsor within 24 hours and decides whether to unpause or escalate to retire. Full 8-step sequence in `day3-build/operating-model.md`.
 
 ## Strategy and roadmap
 
