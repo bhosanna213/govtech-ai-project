@@ -66,7 +66,7 @@ Six tools. All synthetic for now. The agent must not call any tool that sends, p
 
 ## Permissions
 
-Every action the agent takes, classified by tier and setting. All settings are **Proposed** — you decide.
+Every action the agent takes, classified by tier and setting. All settings confirmed.
 
 **Tier definitions:**
 - **read** — retrieves or looks up information. No content created.
@@ -83,51 +83,51 @@ Every action the agent takes, classified by tier and setting. All settings are *
 
 | # | Action | Setting | Status |
 |---|---|---|---|
-| 1 | Read the enquiry (body, subject, topic, attachments) | auto | Proposed |
-| 2 | Read the tone guide and escalation list | auto | Proposed |
-| 3 | Search policy pages by enquiry text | auto | Proposed |
-| 4 | Fetch a policy page and its passages | auto | Proposed |
-| 5 | Check page staleness (90-day threshold) | auto | Proposed |
-| 6 | Check enquiry against escalation list | auto | Proposed |
-| 7 | Fetch prior correspondence on the same case | auto | Proposed |
+| 1 | Read the enquiry (body, subject, topic, attachments) | auto | Set |
+| 2 | Read the tone guide and escalation list | auto | Set |
+| 3 | Search policy pages by enquiry text | auto | Set |
+| 4 | Fetch a policy page and its passages | auto | Set |
+| 5 | Check page staleness (90-day threshold) | auto | Set |
+| 6 | Check enquiry against escalation list | auto | Set |
+| 7 | Fetch prior correspondence on the same case | auto | Set |
 
 ### Draft tier
 
 | # | Action | Setting | Status |
 |---|---|---|---|
-| 8 | Generate a cited reply draft | auto | Proposed |
-| 9 | Flag a draft line as low confidence | auto | Proposed |
-| 10 | Flag a cited page as stale (>90 days) | auto | Proposed |
-| 11 | List three closest pages when no page matches the threshold | auto | Proposed |
-| 12 | Write "please confirm with [team]" when a fee or date is missing from the passage | auto | Proposed |
-| 13 | Acknowledge prior correspondence without confirming unverified claims | auto | Proposed |
-| 14 | Present the draft to the officer for review | confirm | Proposed |
-| 15 | Present an escalation notice and route to a human lead | confirm | Proposed |
-| 16 | Present an image-unreadable notice to the officer | confirm | Proposed |
-| 17 | Present a no-match notice to the officer | confirm | Proposed |
-| 18 | Invent a fee, date, deadline or processing time not in the cited passage | block | Proposed |
-| 19 | Invent citizen names, NRIC fragments or PII | block | Proposed |
-| 20 | Confirm an unverified claim from prior correspondence | block | Proposed |
-| 21 | Draft a reply for an image-dependent enquiry the agent cannot read | block | Proposed |
-| 22 | Use acronyms the resident did not use first | block | Proposed |
+| 8 | Generate a cited reply draft | auto | Set |
+| 9 | Flag a draft line as low confidence | auto | Set |
+| 10 | Flag a cited page as stale (>90 days) | auto | Set |
+| 11 | List three closest pages when no page matches the threshold | auto | Set |
+| 12 | Write "please confirm with [team]" when a fee or date is missing from the passage | auto | Set |
+| 13 | Acknowledge prior correspondence without confirming unverified claims | auto | Set |
+| 14 | Present the draft to the officer for review | confirm | Set |
+| 15 | Present an escalation notice and route to a human lead | confirm | Set |
+| 16 | Present an image-unreadable notice to the officer | confirm | Set |
+| 17 | Present a no-match notice to the officer | confirm | Set |
+| 18 | Invent a fee, date, deadline or processing time not in the cited passage | block | Set |
+| 19 | Invent citizen names, NRIC fragments or PII | block | Set |
+| 20 | Confirm an unverified claim from prior correspondence | block | Set |
+| 21 | Draft a reply for an image-dependent enquiry the agent cannot read | block | Set |
+| 22 | Use acronyms the resident did not use first | block | Set |
 
 ### Write tier
 
 | # | Action | Setting | Status |
 |---|---|---|---|
-| 23 | Log per-enquiry outcome fields (17 fields) | auto | Proposed |
-| 24 | Log per-session summary fields (7 fields) | auto | Proposed |
-| 25 | Remember officer edits within the session | auto | Proposed |
-| 26 | Fire a kill-switch signal and log the event | auto | Proposed |
-| 27 | Mark a case as resolved or closed | block | Proposed |
-| 28 | Override or shorten the escalation list | block | Proposed |
+| 23 | Log per-enquiry outcome fields (17 fields) | auto | Set |
+| 24 | Log per-session summary fields (7 fields) | auto | Set |
+| 25 | Remember officer edits within the session | auto | Set |
+| 26 | Fire a kill-switch signal and log the event | auto | Set |
+| 27 | Mark a case as resolved or closed | block | Set |
+| 28 | Override or shorten the escalation list | block | Set |
 
 ### Send tier
 
 | # | Action | Setting | Status |
 |---|---|---|---|
-| 29 | Send, post or publish a reply to the resident | block | Proposed |
-| 30 | Post or publish content to any external system | block | Proposed |
+| 29 | Send, post or publish a reply to the resident | block | Set |
+| 30 | Post or publish content to any external system | block | Set |
 
 ---
 
