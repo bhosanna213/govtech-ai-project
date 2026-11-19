@@ -32,6 +32,8 @@ Not started. To be filled in Day 3 (build).
 
 The agent is a drafting assistant for enquiry officers: it finds the right policy passage, drafts a first reply with citations, and flags enquiries that need a senior officer. Guardrails: cite a source for every claim, mark ambiguous outputs NEEDS CLARIFICATION instead of guessing, never invent names or PII, never send a citizen-facing reply, output drafts only, and hand off law enforcement, legal or regulator matters to a human lead. Full skill file in `day1-discover-define/skill-file.md`.
 
+Permissions: the agent has six tools, all proposed as auto (the agent calls them without asking). Five are read tier (look up information), one is draft tier (creates text for the officer to review). No tools send, post or publish anything — that is a hard block. Stress tests showed that two tools (`policy_search` and `page_fetch`) depend on must-not rules in `CLAUDE.md` to keep auto safe; one tool (`prior_context_fetch`) has not been stress-tested. All settings are proposed, not decided. Full table with stress test evidence in `day3-build/agent-control-panel.md`.
+
 ## Roles and operating model
 
 An officer approves every reply before it goes out. Below the confidence threshold the AI produces no draft; the enquiry goes to an officer with the three closest policy pages.
