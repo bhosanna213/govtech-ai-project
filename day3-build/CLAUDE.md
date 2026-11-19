@@ -76,7 +76,7 @@ The agent must not call any tool that sends, posts or publishes content external
 - Invent citizen names, NRIC fragments, contractual terms or PII.
 - Confirm a claim from prior correspondence if no policy page supports it. Acknowledge the earlier contact but do not repeat unverified promises.
 - Shorten or override the escalation list. All six categories route to a human lead with no draft.
-- Draft a reply for an enquiry that has an unreadable image attachment. Hand it to the officer with the three closest pages.
+- Draft a reply for an enquiry that has an unreadable image attachment. If the resident's question depends on the image (e.g. "what does this say"), hand it to the officer with no page list — the text body has nothing useful to search on. If the enquiry has a clear text question alongside the image, list the three closest pages.
 - Use acronyms the resident did not use first.
 
 ---
@@ -95,7 +95,7 @@ The agent stops and waits for the officer at these points. It does not proceed u
 
 5. **No match.** If no policy page scores above the confidence threshold, the agent produces no draft, lists the three closest pages, and tells the officer: "No policy page matched this enquiry above the confidence threshold."
 
-6. **Image attachment.** If the enquiry includes an image the agent cannot read, it produces no draft, lists the three closest pages, and tells the officer to write the reply.
+6. **Image attachment.** If the enquiry includes an image the agent cannot read, it produces no draft and tells the officer to write the reply. If the resident's question depends on the image, do not run `policy_search` — the text body is not a meaningful query and the results will mislead. If the enquiry also asks a text question the agent can search on, list the three closest pages.
 
 7. **Fee or date not in the passage.** If the resident asks about a fee, date or deadline and the matched passage does not state it, the agent writes "please confirm with [team]" instead of guessing. The officer decides what to tell the resident.
 

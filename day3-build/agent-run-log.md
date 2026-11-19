@@ -207,6 +207,8 @@ kill_switches_fired:     none
 
 ## Run 3 — refuse (image attachment, cannot read)
 
+> **Rule changed before this rerun.** The original run searched policy pages and listed three irrelevant results (lost items, home repairs, community hall) even though the resident's question was about the photo. An officer would not trust those suggestions — the text body ("please see the attached photo") has nothing useful to search on. The rule in `CLAUDE.md` now says: if the resident's question depends on the image, do not run `policy_search`. Hand the enquiry to the officer with no page list.
+
 ### Input
 
 ```
@@ -228,51 +230,31 @@ prior_correspondence: none
 **Plan:**
 1. Run `escalation_check`.
 2. Check whether the enquiry has an image attachment the agent cannot read.
-3. If image present and unreadable, refuse to draft — list the three closest pages for the officer.
+3. Check whether the resident's question depends on the image.
+4. If the question depends on the image, refuse to draft — hand the enquiry to the officer with no page list.
 
 **Act:** Call `escalation_check` with the enquiry body.
 
 **Observe:** `escalation_check` returns `{ match: false, category: null }`. Not an escalation.
 
-**Check:** No escalation. But the enquiry has an image attachment. The agent instruction says: "Draft a reply for an enquiry that has an unreadable image attachment" is on the must-not list. The agent cannot read the image. It must refuse to draft and hand the enquiry to the officer.
+**Check:** No escalation. But the enquiry has an image attachment the agent cannot read. The resident's question is "what does this notice mean?" — the answer depends entirely on the photo. The updated rule says: do not run `policy_search` when the question depends on the image. The text body ("please see the attached photo") is not a meaningful search query and results would mislead.
 
-### Turn 2
-
-**Act:** Call `policy_search` with the enquiry body (minus the image) to find the three closest pages for the officer.
-
-**Observe:** `policy_search` returns:
-```
-[
-  { page: "pol-004", passage: "p1", score: 0.38 },
-  { page: "pol-003", passage: "p1", score: 0.29 },
-  { page: "pol-002", passage: "p1", score: 0.22 }
-]
-```
-All scores are below the confidence threshold. The best match is pol-004 (Lost item claims) at 0.38 — the search is guessing because it cannot read the notice in the photo.
-
-**Check:** No page scores above the confidence threshold. The agent has two independent reasons not to draft: (1) the image is unreadable, (2) no page matched above the threshold. Both lead to the same action: list the three closest pages and tell the officer to write the reply. **Human checkpoint: image attachment** and **no match** both apply.
-
-### Turn 3 — agent response to officer
+### Turn 2 — agent response to officer
 
 **Act:** Present the refusal notice:
 
 > **No draft — image attachment cannot be read.**
 >
-> This enquiry includes a photo the current tools cannot read. No draft is offered.
+> The resident is asking what a notice on their door says. The answer is in the photo, which the current tools cannot read. No draft is offered and no policy pages are listed — the text body has nothing useful to search on.
 >
-> The three closest policy pages are listed below as a starting point:
-> 1. Lost item claims at public facilities (pol-004)
-> 2. Minor home repair assistance — who qualifies (pol-003)
-> 3. Community Hall booking — rules for residents (pol-002)
->
-> No policy page matched this enquiry above the confidence threshold. The officer writes the reply.
+> The officer reads the photo and writes the reply.
 
 **Observe:** The officer reads the photo manually, identifies it as a notice about a scheduled water supply disruption (not covered by any policy page in the system), and writes a reply explaining the notice to the resident.
 
 **Check:**
 - No draft was produced. ✓
 - The image attachment was identified and the agent refused to draft. ✓
-- The three closest pages were listed. ✓
+- No policy search was run. The agent did not present irrelevant pages. ✓
 - The agent did not guess what the notice says. ✓
 - The agent did not invent a fee, date or processing time. ✓
 - No kill switch applies — the agent correctly refused. ✓
@@ -283,15 +265,15 @@ All scores are below the confidence threshold. The best match is pol-004 (Lost i
 enquiry_id:              enq-13
 topic:                   Others
 mode:                    draft
-pages_searched:          4
-page_matched:            none (all below threshold)
+pages_searched:          0
+page_matched:            none
 page_stale:              false
-confidence:              Below threshold (best: 0.38)
+confidence:              N/A — image unreadable, no search run
 draft_lines:             0
 low_confidence_lines:    0
 first_open:              2026-11-19T09:05:10Z
-decided_at:              2026-11-19T09:08:33Z
-time_to_decision:        203s
+decided_at:              2026-11-19T09:07:45Z
+time_to_decision:        155s
 cites_opened:            0
 edit_sessions:           0
 words_changed_share:     0
