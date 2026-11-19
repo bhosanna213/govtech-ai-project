@@ -45,10 +45,57 @@ Six tools. All synthetic for now. The agent must not call any tool that sends, p
 
 ## Context and memory
 
+### Enquiry schema
+
+Each enquiry has these fields. The agent reads all of them at the start.
+
+| Field | Type | Example | Notes |
+|---|---|---|---|
+| `id` | string | `enq-01` | Unique identifier |
+| `from` | string | `Lim W. (synthetic)` | Sender name |
+| `topic` | string or null | `Senior services` | One of the fixed topic list, or null if unknown |
+| `receivedDate` | date string | `2026-11-12` | ISO date |
+| `subject` | string | `Senior Activity Pass for my mother` | One-line subject |
+| `body` | string | (free text) | The resident's message |
+| `hasImage` | boolean | `false` | Whether the enquiry has an image attachment |
+| `followUp` | boolean | `false` | Whether this is a follow-up to an earlier case |
+| `priorContext` | string or null | (free text) | Earlier correspondence, if any |
+
+**Fixed topic list (6 + Others):** Senior services, Facilities booking, Home repairs, Lost and found, Complaints and feedback, Accounts and payments. Enquiries with no match get "Others."
+
+### Policy page schema
+
+Each policy page has these fields. The agent reads them via `page_fetch`.
+
+| Field | Type | Example |
+|---|---|---|
+| `id` | string | `pol-001` |
+| `title` | string | `Senior Activity Pass — eligibility and fees` |
+| `lastReviewed` | date string | `2026-07-15` |
+| `passages` | object | `{ "p1": "Residents aged 60 and above…", "p2": "The pass costs $12…" }` |
+
+Passages are keyed by passage ID (`p1`, `p2`, `p3`, etc.). Each value is a plain-text string. The agent cites passages as `[page ID, passage ID]` — e.g. `["pol-001", "p2"]`.
+
+### Tone guide format
+
+The tone guide is a structured object the agent receives as input to `draft_reply`.
+
+```
+{
+  register: "Plain, respectful, one reading level below formal.",
+  rules: [
+    "Address the resident as 'you' and 'your', not 'the applicant'.",
+    "No acronyms unless the resident used one first.",
+    "No jargon. Use everyday words.",
+    "One topic, one paragraph, each with its own citation."
+  ]
+}
+```
+
 ### What the agent knows at the start of each enquiry
 
-- The enquiry: sender (synthetic name), subject, body, received date, topic, attachments.
-- The tone guide: plain, respectful, one reading level below formal. No acronyms unless the resident used one first. No jargon.
+- The enquiry (see schema above).
+- The tone guide (see format above).
 - The escalation list: six categories (see Business rules).
 - The confidence threshold: if no policy page scores above it, say so and list the three closest pages. Do not draft.
 
@@ -171,7 +218,7 @@ The agent stops work entirely — no more drafts, no retries — in these situat
 
 ## Logs
 
-### Per enquiry (17 fields)
+### Per enquiry (18 fields)
 
 | Field | What it records |
 |---|---|
@@ -192,6 +239,7 @@ The agent stops work entirely — no more drafts, no retries — in these situat
 | `words_changed_share` | 0 to 1 — bag-of-words share of the draft the officer changed |
 | `planted_error_survived` | Boolean or null — did a known planted error survive into the approved text |
 | `escalation` | Boolean — was the enquiry escalated |
+| `outcome` | "approved", "edited", "rejected", "escalated", or "not decided" |
 
 ### Per session (7 fields)
 
@@ -267,8 +315,18 @@ These need a decision before building. Neither business rules nor engineering ch
 
 5. **Session memory across sessions.** The agent currently forgets everything between sessions. Should officer corrections carry over (so the agent improves over time), or should each session stay independent? Not yet decided.
 
-6. **Confidence threshold value.** The agent instruction file says "if no policy page scores above it" but does not state the number. What is the threshold, who sets it, and can it be tuned per topic? Not yet decided.
+6. **Confidence threshold value (blocker).** The agent instruction file says "if no policy page scores above it" but does not state the number. The entire no-match flow, the low-confidence flagging, and human checkpoints 2 and 5 depend on this value. What is the threshold, who sets it, and can it be tuned per topic? Cannot ship without a number. Not yet decided.
 
 7. **Escalation list governance.** The list came from the skill file and cannot be shortened without policy review. But who can add categories? What is the review process? Not yet decided.
 
 8. **Multi-language support.** English only in the prototype. The enquiry population may include other languages. How to handle them (translate then draft, refuse, route to a language-specific officer) is undecided.
+
+9. **Hard gate vs warning for checkpoints.** Human checkpoints 2 (low confidence) and 3 (stale page) say the officer "must" review before approving. Is the approve button disabled until the officer clicks the flagged line or citation? Or is it a visual warning the officer can bypass? An engineer cannot build the UI without this answer. Not yet decided.
+
+10. **Test-only vs production scope.** The planted error (business rule 3), the head-to-head snippet mode (business rule 6), and the 10-minute session clock (business rule 8) are validation instruments. The PRD does not say which of these survive into a production system. If all three are built into production, the system ships with a test harness embedded. If they are removed, the measurement system loses its core test instruments. Not yet decided.
+
+11. **What "similar enquiry" means for edit learning.** The memory section says the agent "does not repeat the same mistake on a similar enquiry." What makes two enquiries similar — same topic, same matched page, same passage, overlapping keywords? An engineer cannot build the edit-learning feature without a matching rule. Not yet decided.
+
+12. **Kill-switch aftermath.** Stop conditions say the agent "stops work entirely" but do not say what happens next. What does the officer see — a banner, a locked screen, a redirect? Is a supervisor notified? Can the officer override the kill switch and keep working? Not yet decided.
+
+13. **Concurrent access.** The PRD says the officer opens a shared inbox. If two officers open the same enquiry at the same time, can both draft? Does one lock it? What happens if both approve different drafts? Not yet decided.
