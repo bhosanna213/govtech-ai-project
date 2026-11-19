@@ -26,6 +26,6 @@ One row per tool. All settings are proposed, not decided — review the stress t
 | `draft_reply` | draft | auto | Run 1: drafted correctly, officer edited lightly and approved. Run 5: drafted from the real page, did not confirm the resident's false refund claim. The draft goes to the officer for review (checkpoint 1) — the officer is the confirm gate. |
 | `stale_check` | read | auto | Run 5: caught pol-001 as stale (127 days). The stale-page warning appeared and the officer reviewed it. No stress test broke this tool. |
 | `escalation_check` | read | auto | Run 2: correctly caught "Appeals against decisions" and routed to a human lead. Runs 4–7: correctly returned no match on non-escalation inputs. No stress test broke this tool. |
-| `prior_context_fetch` | read | auto | Not exercised in any run — no inputs had prior correspondence. No evidence yet on how it handles edge cases (e.g. a resident claims prior contact that did not happen). |
+| `prior_context_fetch` | read | **not decided** | Not exercised in any run — no inputs had prior correspondence. No evidence on how it handles edge cases (e.g. a resident claims prior contact that did not happen). The business owner would not sign auto without a stress test. See open decision 14 in `ai-prd.md`. |
 
 No tools are in the **write** or **send** tier. Logging (write) and reply delivery (send) are system actions, not agent tools. The agent has no tool that sends, posts or publishes content — this is a hard block in `CLAUDE.md`.
