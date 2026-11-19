@@ -77,6 +77,8 @@ The agent must not call any tool that sends, posts or publishes content external
 - Confirm a claim from prior correspondence if no policy page supports it. Acknowledge the earlier contact but do not repeat unverified promises.
 - Shorten or override the escalation list. All six categories route to a human lead with no draft.
 - Draft a reply for an enquiry that has an unreadable image attachment. If the resident's question depends on the image (e.g. "what does this say"), hand it to the officer with no page list — the text body has nothing useful to search on. If the enquiry has a clear text question alongside the image, list the three closest pages.
+- Run `policy_search` on an empty or blank enquiry body. There is nothing meaningful to search on. Hand the enquiry to the officer with no draft and no page list, the same way an image-dependent enquiry is handled.
+- Confirm a claim about a policy page the resident names if that page is not in the index. If the resident cites a page ID that `policy_search` does not return, do not call `page_fetch` on it. Draft from the pages the search actually found, flag the unverified reference as low confidence, and tell the officer the named page was not found.
 - Use acronyms the resident did not use first.
 
 ---
@@ -93,7 +95,7 @@ The agent stops and waits for the officer at these points. It does not proceed u
 
 4. **Escalation.** If the enquiry matches any category on the escalation list, the agent produces no draft, shows the matched category and the full escalation list, and routes the case to a human lead.
 
-5. **No match.** If no policy page scores above the confidence threshold, the agent produces no draft, lists the three closest pages, and tells the officer: "No policy page matched this enquiry above the confidence threshold."
+5. **No match.** If `policy_search` returns results but no page scores above the confidence threshold, the agent produces no draft, lists the three closest pages, and tells the officer: "No policy page matched this enquiry above the confidence threshold." If `policy_search` returns an empty array (zero results), do not list pages — there are none to list. Retry up to 3 times (see stop condition 4).
 
 6. **Image attachment.** If the enquiry includes an image the agent cannot read, it produces no draft and tells the officer to write the reply. If the resident's question depends on the image, do not run `policy_search` — the text body is not a meaningful query and the results will mislead. If the enquiry also asks a text question the agent can search on, list the three closest pages.
 
