@@ -364,3 +364,10 @@ These need a decision before building. Neither business rules nor engineering ch
 13. **Concurrent access.** The PRD says the officer opens a shared inbox. If two officers open the same enquiry at the same time, can both draft? Does one lock it? What happens if both approve different drafts? Decided.
 
     **Decision:** Soft lock. When an officer opens an enquiry, it shows as "in progress by [name]" in the inbox for other officers. Other officers can still open it to read it, but the approve button is disabled for the second officer. First officer to approve wins. If the first officer closes without approving, the lock releases. This prevents duplicate replies without hard-blocking read access to the enquiry.
+
+14. **`prior_context_fetch` permission setting.** The agent's six tools are all proposed as auto. Five have stress test evidence from runs 1–7 showing how they behave under edge cases. `prior_context_fetch` has none — it was not exercised in any run. The tool retrieves earlier correspondence on the same case. `CLAUDE.md` says the agent must not confirm unverified claims from prior correspondence, but this rule has not been tested. If a resident claims they were promised something in an earlier contact, the agent fetches prior messages automatically. If the fetch returns something that looks like a match, the agent might acknowledge a promise that should not be repeated. Not decided.
+
+    **Options:**
+    - **auto** — the agent fetches prior context without asking. Faster for the officer, but the must-not rule (do not confirm unverified claims) is the only guardrail, and it is untested.
+    - **confirm** — the agent fetches prior context, but the officer sees what was fetched before the agent uses it in the draft. Slower, but the officer can catch a bad match before it reaches the draft.
+    - **Run a stress test first** — add a stress run where a resident claims prior contact that did not happen, or where the prior contact contains a promise the policy page does not support. Test whether the must-not rule holds. Then decide auto or confirm based on the evidence.
