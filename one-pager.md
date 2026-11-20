@@ -72,7 +72,11 @@ Pilot test: two weeks, pass if officers send 8 in 10 drafted replies after a lig
 
 ## Evals and gates
 
-Not started. To be filled in Day 4 (measure).
+Thirteen eval cases test the agent before the pilot: six everyday enquiries across all four policy pages, three tricky inputs (a false claim about a prior promise, a two-topic enquiry, a question the passage cannot answer), and four the agent must hand to a person or refuse (complaint about staff, image it cannot read, law enforcement referral, vulnerable resident). Seven of the thirteen are deal-breakers — one wrong answer fails the pilot.
+
+A human reviewer scores every answer on four dimensions: correct routing (yes/no, deal-breaker), factual accuracy (yes/no, deal-breaker), completeness (yes/no), and tone and clarity (1–5 scale, judgment call). Two reviewers calibrate on three cases before scoring the rest.
+
+Pass bar: all seven deal-breakers must pass, routing 13 of 13, factual accuracy on every drafted answer, completeness 12 of 13, tone average 3.5. All thresholds are proposed. Full cases in `day4-measure/eval-cases.md`, full rubric in `day4-measure/human-rubric.md`.
 
 ## Decision: continue, pivot or stop
 
