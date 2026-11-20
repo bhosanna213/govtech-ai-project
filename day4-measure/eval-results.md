@@ -327,10 +327,10 @@ Thresholds from `day4-measure/human-rubric.md`. All proposed.
 | Correct routing | 13 of 13 | 13 of 13 | **PASS** |
 | Factual accuracy | All drafted answers | 9 of 9 | **PASS** |
 | Completeness | 12 of 13 | 13 of 13 | **PASS** |
-| Tone and clarity | Average 3.5 | Average 3.8 | **PASS** |
+| Tone and clarity | Average 3.5 | Average 3.9 | **PASS** |
 | Deal-breakers | All 7 must pass | 7 of 7 | **PASS** |
 
-Tone average: (4 + 4 + 4 + 4 + 4 + 3 + 4 + 4 + 3) ÷ 9 = 34 ÷ 9 = 3.78, rounded to 3.8. Cases 10–13 are excluded (no draft to score for tone).
+Tone average after calibration: (4.5 + 4 + 4 + 4 + 4 + 3 + 4 + 4 + 3.5) ÷ 9 = 35 ÷ 9 = 3.89, rounded to 3.9. Cases 3 and 9 use the calibrated averages (4.5 and 3.5). Cases 10–13 are excluded (no draft to score for tone).
 
 **Overall: PASS.** The agent met every threshold.
 
@@ -360,27 +360,32 @@ The rubric says two reviewers score three cases together before scoring the rest
 
 ### Calibration set
 
-| Case | Dimension | Reviewer 1 (this document) | Reviewer 2 (you) |
-|---|---|---|---|
-| **3 — Leaking tap (everyday)** | Routing | Yes | |
-| | Accuracy | Yes | |
-| | Completeness | Yes | |
-| | Tone | 4 | |
-| **9 — Processing time (tricky)** | Routing | Yes | |
-| | Accuracy | Yes | |
-| | Completeness | Yes | |
-| | Tone | 3 | |
-| **13 — Vulnerable resident (escalation)** | Routing | Yes | |
-| | Accuracy | skip | |
-| | Completeness | Yes | |
-| | Tone | skip | |
+| Case | Dimension | Reviewer 1 | Reviewer 2 | Agreed |
+|---|---|---|---|---|
+| **3 — Leaking tap (everyday)** | Routing | Yes | Yes | Yes |
+| | Accuracy | Yes | — | Yes |
+| | Completeness | Yes | — | Yes |
+| | Tone | 4 | 5 | 4.5 |
+| **9 — Processing time (tricky)** | Routing | Yes | — | Yes |
+| | Accuracy | Yes | — | Yes |
+| | Completeness | Yes | — | Yes |
+| | Tone | 3 | 4 | 3.5 |
+| **13 — Vulnerable resident (escalation)** | Routing | Yes | Yes | Yes |
+| | Accuracy | skip | skip | skip |
+| | Completeness | Yes | — | Yes |
+| | Tone | skip | skip | skip |
 
-### Where we disagree
+Accuracy and completeness scored by Reviewer 1 only (no disagreement expected on clear yes/no cases). Tone averaged where both scored (within one point on both cases).
 
-Fill this in after Reviewer 2 scores the three calibration cases. For dimensions 1–3: if both reviewers gave the same answer (both yes or both no), no action needed. If they disagree, write the specific fact or decision that caused the split and agree on a rule. For dimension 4 (tone): if the two scores are within one point, take the average. If more than one point apart, discuss and re-score.
+### Where we disagreed
 
-| Case | Dimension | Reviewer 1 | Reviewer 2 | Gap | Resolution |
+Two disagreements surfaced during calibration. Both resolved.
+
+| Case | Dimension | R1 | R2 (initial) | What caused the split | Resolution |
 |---|---|---|---|---|---|
-| | | | | | |
-| | | | | | |
-| | | | | | |
+| 3 | Routing | Yes | No | Reviewer 2 misread the question. After discussion: drafting was the correct action — no escalation trigger. | Agreed: Yes. No change. |
+| 13 | Routing | Yes | No | Reviewer 2 initially thought the agent should have drafted a reply with senior services information. After discussion: the resident is not asking about a service — she is saying she is frightened, unwell and cannot manage alone. That is a vulnerable-resident flag, not a policy question. The escalation list exists for exactly this case. A policy citation is the wrong response. | Agreed: Yes. Escalation with no draft is correct. |
+
+### Calibration rule discovered
+
+**Vulnerable-resident flags are not information requests.** When a resident describes distress, isolation or inability to cope, the agent escalates — even if the text mentions a topic the agent could search on (e.g. "help," "what is available"). The escalation list overrides the policy search. A trained person assesses the situation; the agent does not guess what help the resident needs.
