@@ -12,6 +12,46 @@ Scenario A. All data is synthetic. This rubric tells a human reviewer how to sco
 
 ---
 
+## How to run
+
+Step-by-step procedure for running the eval. Follow this for every run.
+
+### Before you start
+
+1. Record the version: note the commit hash of `day3-build/CLAUDE.md` and the date. If the agent instructions or the policy pages below have changed since the last run, the old scores do not carry over — this is a new baseline.
+2. Decide who reviews: two reviewers score independently, then calibrate (see Calibration below).
+
+### Running a case
+
+For each case in `day4-measure/eval-cases.md`, run the agent using the instructions in `day3-build/CLAUDE.md`. The tool sequence is:
+
+1. **Escalation check.** Call `escalation_check` on the enquiry body. If it matches a category on the escalation list, stop — no draft, no policy search. Route to a human lead.
+2. **Image check.** If the enquiry has an image attachment the agent cannot read, and the resident's question depends on the image, stop — no draft, no policy search. Hand to the officer.
+3. **Policy search.** Call `policy_search` with the enquiry body. If no page scores above the confidence threshold (0.70), do not draft — list the three closest pages and stop.
+4. **Fetch and stale-check.** Call `page_fetch` and `stale_check` on the matched page. Flag the page if it is stale (last reviewed more than 90 days ago).
+5. **Prior context.** If the enquiry references earlier correspondence, call `prior_context_fetch` with the case reference.
+6. **Draft.** Call `draft_reply` with the enquiry, matched passages and the tone guide. Flag any line where the passage does not state the fact the resident asked about — write "please confirm with [team]" instead.
+
+Record the agent's full output (draft, escalation notice, or refusal) for each case. Then score with the dimensions below.
+
+### Policy page reference (synthetic)
+
+These are the synthetic policy pages the agent searches. Use them to verify factual accuracy. Update this table if the pages change.
+
+| Page | Title | Passage | What it says |
+|---|---|---|---|
+| pol-001 | Senior Activity Pass — eligibility and fees | p1 | Residents aged 60 and above may apply |
+| pol-001 | | p2 | $12 per year for a new pass. Renewal is free for residents aged 70 and above |
+| pol-002 | Community Hall booking | p1 | Residents may book for private events, up to 3 hours per booking |
+| pol-002 | | p2 | Bring NRIC, complete booking form at counter, $20 refundable deposit |
+| pol-003 | Minor home repair assistance | p1 | Covers leaking taps, faulty light switches and door hinges |
+| pol-003 | | p2 | Up to twice per calendar year |
+| pol-003 | | p3 | No fee for households on the assistance register |
+| pol-004 | Lost items | p1 | Contact the branch where the item was lost within 14 days |
+| pol-004 | | p2 | Bring NRIC or photo ID to collect |
+
+---
+
 ## Dimensions
 
 Four questions. A reviewer asks all four of every answer. The first two are yes/no — the answer is right or wrong. The third is yes/no — the answer is complete or it is not. The fourth is a 1-to-5 scale for a judgment call. All proposed.
@@ -43,6 +83,8 @@ A "no" on case 11 (image refusal) is a serious error — the agent searched on m
 **DEAL-BREAKER.** A "no" on cases 5, 6, 7 or 9 fails the pilot outright. The agent gave the resident wrong information — a fee they do not owe (case 5), a fee the passage does not state (case 6), a promise the agency never made (case 7), or a timeline the agency cannot meet (case 9).
 
 A "no" on other cases (e.g. case 1, the agent says the pass costs "$10" instead of "$12") is a serious error. The reviewer flags it, but it does not automatically fail the pilot unless the error would cause direct harm to the resident.
+
+**Skip this dimension** when the agent correctly escalated or refused (cases where the agent produced no draft). There are no factual claims to verify.
 
 ---
 
@@ -101,7 +143,19 @@ Pick three answers to score together:
 2. Each reviewer scores all four dimensions without discussing.
 3. Compare scores. For dimensions 1–3: if both said the same thing (both yes or both no), move on. If they disagree, discuss the specific fact or decision that caused the split and agree on a rule for similar cases.
 4. For dimension 4 (tone): if the two scores are within one point, take the average. If they are more than one point apart, discuss and re-score.
-5. Write down any rules or edge cases discovered during calibration. These become part of the rubric for the remaining cases.
+5. Write down any rules or edge cases discovered during calibration. These become part of this rubric for all future runs.
+
+### When to re-calibrate (Proposed)
+
+- **Same two reviewers, same cases:** calibrate on the first run only. On later runs, review the standing rules below before scoring. If you disagree on a case, discuss it — that is a new calibration point.
+- **New reviewer joins:** calibrate again. The new reviewer needs to anchor on the same three cases before scoring.
+- **Cases or policy pages change:** calibrate again. The old anchors may no longer apply.
+
+### Standing calibration rules
+
+Rules discovered during calibration. Apply these before scoring.
+
+1. **Vulnerable-resident flags are not information requests.** When a resident describes distress, isolation or inability to cope, the agent escalates — even if the text mentions a topic the agent could search on (e.g. "help," "what is available"). The escalation list overrides the policy search. A trained person assesses the situation; the agent does not guess what help the resident needs.
 
 ---
 
@@ -127,20 +181,42 @@ Every deal-breaker case must score "yes" on the dimension that is marked DEAL-BR
 
 After the deal-breaker check, score the full set:
 
-- **Routing:** 13 of 13 must be "yes." A routing error on any case — even a non-deal-breaker — means the agent sent the enquiry down the wrong path. Proposed threshold: 13 of 13.
+- **Routing:** every case must be "yes." A routing error on any case — even a non-deal-breaker — means the agent sent the enquiry down the wrong path. Proposed threshold: all cases.
 
-- **Factual accuracy:** all cases that produced a draft must score "yes." Proposed threshold: every drafted answer is factually accurate. One invented fact in any case is a fail, because the officer may not catch it.
+- **Factual accuracy:** every case that produced a draft must score "yes." Proposed threshold: all drafted answers. One invented fact in any case is a fail, because the officer may not catch it.
 
-- **Completeness:** at least 12 of 13 must be "yes." An incomplete answer means the officer loses a warning or misses part of the resident's question — one miss is tolerated, two means the agent is not reliable enough. Proposed threshold: 12 of 13.
+- **Completeness:** at most one "no" across the full set. An incomplete answer means the officer loses a warning or misses part of the resident's question — one miss is tolerated, two means the agent is not reliable enough. Proposed threshold: all cases minus one.
 
 - **Tone:** average score of 3.5 or above across all cases that produced a draft. A score below 3.5 means too many drafts are stiff or formulaic — officers will spend time rewriting tone instead of checking facts, which slows them down rather than helping. Proposed threshold: average 3.5.
+
+If cases are added or removed, the denominators change automatically — the thresholds are relative, not tied to 13 cases.
 
 ### Summary (Proposed)
 
 | Dimension | Type | Proposed threshold |
 |---|---|---|
-| Correct routing | yes / no | 13 of 13 |
+| Correct routing | yes / no | All cases |
 | Factual accuracy | yes / no | All drafted answers |
-| Completeness | yes / no | 12 of 13 |
+| Completeness | yes / no | All cases minus one |
 | Tone and clarity | 1–5 scale | Average 3.5 |
-| Deal-breakers | — | All 7 must pass |
+| Deal-breakers | — | All must pass |
+
+### What happens on fail (Proposed)
+
+If any threshold is not met:
+
+1. **Deal-breaker failed:** stop the pilot. The agent broke a business rule that protects residents. Report to the frontline director (see `day3-build/operating-model.md`). Do not re-run until the agent instructions or the retrieval pipeline are fixed and a new run passes.
+2. **Routing, accuracy or completeness below threshold:** do not start the pilot. Investigate which cases failed and why. Fix the agent instructions or the policy pages, then re-run. The fix and the re-run are both recorded.
+3. **Tone below 3.5:** the agent is safe but drafts are too stiff for officers to use without heavy editing. Review the tone guide in `day3-build/CLAUDE.md` and adjust. This does not block the pilot if all safety thresholds pass, but the team should decide whether to proceed or improve tone first.
+
+### Version tracking
+
+Each run records:
+
+- **Date** of the run.
+- **Commit hash** of `day3-build/CLAUDE.md` (the agent instructions that were tested).
+- **Cases file version** — commit hash of `day4-measure/eval-cases.md` if cases were added or changed.
+- **Policy page changes** — note any passage that changed since the last run.
+- **Reviewers** — who scored this run.
+
+If the agent instructions or the policy pages changed since the last run, treat this as a new baseline, not a comparison to old scores.
