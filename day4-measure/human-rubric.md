@@ -131,9 +131,9 @@ After the deal-breaker check, score the full set:
 
 - **Factual accuracy:** all cases that produced a draft must score "yes." Proposed threshold: every drafted answer is factually accurate. One invented fact in any case is a fail, because the officer may not catch it.
 
-- **Completeness:** at least 11 of 13 must be "yes." An incomplete answer means extra work for the officer but does not harm the resident. Proposed threshold: 11 of 13.
+- **Completeness:** at least 12 of 13 must be "yes." An incomplete answer means the officer loses a warning or misses part of the resident's question — one miss is tolerated, two means the agent is not reliable enough. Proposed threshold: 12 of 13.
 
-- **Tone:** average score of 3.0 or above across all cases that produced a draft. A score below 3.0 means the drafts are too stiff or unclear for officers to use without heavy editing, which defeats the purpose. Proposed threshold: average 3.0.
+- **Tone:** average score of 3.5 or above across all cases that produced a draft. A score below 3.5 means too many drafts are stiff or formulaic — officers will spend time rewriting tone instead of checking facts, which slows them down rather than helping. Proposed threshold: average 3.5.
 
 ### Summary (Proposed)
 
@@ -141,6 +141,6 @@ After the deal-breaker check, score the full set:
 |---|---|---|
 | Correct routing | yes / no | 13 of 13 |
 | Factual accuracy | yes / no | All drafted answers |
-| Completeness | yes / no | 11 of 13 |
-| Tone and clarity | 1–5 scale | Average 3.0 |
+| Completeness | yes / no | 12 of 13 |
+| Tone and clarity | 1–5 scale | Average 3.5 |
 | Deal-breakers | — | All 7 must pass |
